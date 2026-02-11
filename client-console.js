@@ -240,6 +240,12 @@ function planMonthLabel_(ym){
   const m = String(ym||"").match(/^(\d{4})-(\d{2})$/);
   return m ? `${m[2]}/${m[1]}` : String(ym||"");
 }
+function planPillsHtml_(dl, st){
+  const a = dl ? `<span class="cc-pill cc-mini cc-planPill cc-planPill--date">${escapeHtml(planMonthLabel_(dl))}</span>` : ``;
+  const b = st ? `<span class="cc-pill cc-mini cc-planPill cc-planPill--status">${escapeHtml(st)}</span>` : ``;
+  return a + b;
+}
+
 function planStepMeta_(stepTxt, dl){
   const a = String(stepTxt||"").trim() ? 1 : 0;
   const b = String(dl||"").trim() ? 1 : 0;
