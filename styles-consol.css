@@ -2285,3 +2285,120 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
   color: #777;
   margin-top: 6px;
 }
+/* ======================
+ * My Plan (ClientPlan)
+ * ====================== */
+.cc-planTopbar{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:10px;
+  position:sticky;
+  top:12px;
+  z-index:6;
+  margin-bottom:12px;
+}
+
+.cc-planUpdated{
+  font-size:12px;
+  color:#043D56;
+  opacity:.8;
+  white-space:nowrap;
+}
+
+.cc-planSteps{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  margin-top:12px;
+}
+
+.cc-planAdd{
+  margin-top:10px;
+}
+
+.cc-planHint{
+  margin-top:6px;
+  font-size:12px;
+  color:#6a7d87;
+}
+
+.cc-planStep{
+  padding:14px;
+}
+
+.cc-planStepHead{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+}
+
+.cc-planStepTitle{
+  font-weight:800;
+  color:#043D56;
+}
+
+.cc-planPills{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+.cc-planPill{
+  border:1px solid rgba(4,61,86,0.18);
+  background:#f6fbff;
+  color:#043D56;
+}
+
+.cc-planPreview{
+  margin-top:10px;
+  padding:10px 12px;
+  border-radius:12px;
+  background:#fbfdff;
+  border:1px solid rgba(0,0,0,0.06);
+  font-size:13px;
+  line-height:1.35;
+  color:#2b3b45;
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+
+.cc-planEmpty{
+  color:#6a7d87;
+  opacity:.85;
+}
+
+.cc-planFull{
+  margin-top:10px;
+}
+
+.cc-planGrid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+
+@media (max-width: 900px){
+  .cc-planGrid{ grid-template-columns:1fr; }
+}
+
+.cc-planLabel{
+  font-size:12px;
+  color:#043D56;
+  opacity:.85;
+  margin-bottom:6px;
+  font-weight:700;
+}
+
+.cc-planField .cc-input{
+  width:100%;
+  min-width:0;
+}
+
+.cc-planField textarea.cc-input{
+  height:auto;
+  min-height:70px;
+  padding:10px 12px;
+}
