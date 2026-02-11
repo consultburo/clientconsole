@@ -224,23 +224,174 @@ const map = { dashboard:"pageDashboard", identity:"pageIdentity", experience:"pa
   });
 }
 
-function renderStepsRows_(steps){
-  const tbody=document.getElementById("plStepsBody");
-  tbody.innerHTML="";
-  const rows = 10;
-  for(let i=0;i<rows;i++){
-    const s = (steps && steps[i]) ? steps[i] : {};
-    const tr=document.createElement("tr");
-    tr.innerHTML = `
-      <td>${i+1}</td>
-      <td class="plan-cell"><textarea class="cc-input" data-k="step" data-i="${i}">${s.step||""}</textarea></td>
-      <td class="plan-cell"><input class="cc-input" data-k="deadline" data-i="${i}" value="${s.deadline||""}"></td>
-      <td class="plan-cell"><textarea class="cc-input" data-k="resources" data-i="${i}">${s.resources||""}</textarea></td>
-      <td class="plan-cell"><textarea class="cc-input" data-k="support" data-i="${i}">${s.support||""}</textarea></td>
-      <td class="plan-cell"><textarea class="cc-input" data-k="obstacles" data-i="${i}">${s.obstacles||""}</textarea></td>
-      <td class="plan-cell"><textarea class="cc-input" data-k="fallback" data-i="${i}">${s.fallback||""}</textarea></td>
-    `;
-    tbody.appendChild(tr);
+const PLAN_MAX_STEPS = 6;
+const PLAN_DURATION_OPTS = ["3 месяца","6 месяцев","1 год","2 года"];
+const PLAN_STATUS_OPTS = ["Завершено","В процессе","Нужна помощь"];
+
+function ensurePlanUi_(){
+  // duration -> select (без правки HTML)
+  const d = document.getElementById("plDuration");
+  if(d && d.tagName !== "SELECT"){
+    const sel = document.createElement("select");
+    sel.id = d.id;
+    sel.className = d.className || "cc-input";
+    sel.name = d.name || "";
+    sel.setAttribute("aria-label", d.getAttribute("aria-label") || "Длительность");
+    sel.innerHTML =
+      `<option value=""></option>` +
+      PLAN_DURATION_OPTS.map(x=>`<option value="${escapeHtml(x)}">${escapeHtml(x)}</option>`).join("");
+    d.parentNode.replaceChild(sel, d);
+  }
+
+  // прячем старую таблицу и создаём контейнер под аккордеоны
+  const tbody = document.getElementById("plStepsBody");
+  if(tbody){
+    const table = tbody.closest("table");
+    if(table) table.classList.add("hidden");
+
+    let acc = document.getElementById("plStepsAcc");
+    if(!acc){
+      acc = document.createElement("div");
+      acc.id = "plStepsAcc";
+      acc.className = "cc-planSteps";
+      if(table) table.parentNode.insertBefore(acc, table);
+      else tbody.parentNode.insertBefore(acc, tbody);
+    }
+
+    let add = document.getElementById("btnAddPlanStep");
+    if(!add){
+      add = document.createElement("button");
+      add.type = "button";
+      add.id = "btnAddPlanStep";
+      add.className = "cc-btn cc-btn--secondary cc-planAdd";
+      add.textContent = "Добавить шаг";
+      acc.insertAdjacentElement("afterend", add);
+    }
+
+    if(add && add.dataset.bound !== "1"){
+      add.dataset.bound = "1";
+      add.addEventListener("click", ()=>{
+        const plan = collectPlan_();
+        plan.steps = Array.isArray(plan.steps) ? plan.steps : [];
+        if(plan.steps.length >= PLAN_MAX_STEPS) return;
+        plan.steps.push({});
+        renderStepsRows_(plan.steps, plan.steps.length - 1);
+      });
+    }
+  }
+
+  // фиксация кнопки "Сохранить" — через CSS
+  const page = document.getElementById("pagePlan");
+  if(page) page.classList.add("cc-planPage");
+}
+
+function normMonth_(v){
+  const s = String(v||"").trim();
+  if(!s) return "";
+  if(/^\d{4}-\d{2}$/.test(s)) return s;        // input[type=month]
+  const m = s.match(/^(\d{2})\.(\d{4})$/);     // на случай старых значений "MM.YYYY"
+  if(m) return `${m[2]}-${m[1]}`;
+  return s;
+}
+
+function planStepItemHtml_(s,i){
+  const stepTxt = String(s.step||"").trim();
+  const dl = normMonth_(s.deadline||"");
+  const st = String(s.status||"").trim();
+
+  const stPill = st ? `<span class="cc-pill cc-mini cc-planPill">${escapeHtml(st)}</span>` : ``;
+  const preview = stepTxt ? escapeHtml(stepTxt) : `<span class="cc-planEmpty">Заполните “Достижение цели”</span>`;
+
+  const stOptions =
+    `<option value=""></option>` +
+    PLAN_STATUS_OPTS.map(x=>`<option value="${escapeHtml(x)}"${x===st ? " selected" : ""}>${escapeHtml(x)}</option>`).join("");
+
+  return `
+    <div class="cc-card cc-planStep" data-cc-acc>
+      <div class="cc-planStepHead">
+        <div class="cc-planStepLeft">
+          <div class="cc-planStepTitle">Шаг ${i+1}</div>
+          <div class="cc-planStepSub">${dl ? `Сроки: ${escapeHtml(dl)}` : `&nbsp;`}</div>
+        </div>
+        <div class="cc-planStepRight">
+          ${stPill}
+          <button class="cc-miniToggle" type="button" data-cc-acc-btn aria-expanded="false">
+            <span data-cc-acc-text>Показать</span>
+            <span class="cc-acc-chev">▾</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="cc-planPreview" data-cc-acc-preview>${preview}</div>
+
+      <div class="cc-planFull" data-cc-acc-full style="display:none;">
+        <div class="cc-planGrid cc-planGrid--top">
+          <div class="cc-planField">
+            <div class="cc-planLabel">Достижение цели</div>
+            <textarea class="cc-input" data-k="step" data-i="${i}" maxlength="800">${escapeHtml(stepTxt)}</textarea>
+          </div>
+          <div class="cc-planField">
+            <div class="cc-planLabel">Сроки (месяц/год)</div>
+            <input class="cc-input" type="month" data-k="deadline" data-i="${i}" value="${escapeHtml(dl)}">
+          </div>
+          <div class="cc-planField">
+            <div class="cc-planLabel">Статус</div>
+            <select class="cc-input" data-k="status" data-i="${i}">${stOptions}</select>
+          </div>
+          <div class="cc-planField">
+            <div class="cc-planLabel">Комментарии</div>
+            <textarea class="cc-input" data-k="comments" data-i="${i}" maxlength="600">${escapeHtml(String(s.comments||"").trim())}</textarea>
+          </div>
+        </div>
+
+        <div class="cc-planGrid cc-planGrid--bottom">
+          <div class="cc-planField">
+            <div class="cc-planLabel">Ресурсы</div>
+            <textarea class="cc-input" data-k="resources" data-i="${i}" maxlength="800">${escapeHtml(String(s.resources||"").trim())}</textarea>
+          </div>
+          <div class="cc-planField">
+            <div class="cc-planLabel">Поддержка и контроль</div>
+            <textarea class="cc-input" data-k="support" data-i="${i}" maxlength="800">${escapeHtml(String(s.support||"").trim())}</textarea>
+          </div>
+          <div class="cc-planField">
+            <div class="cc-planLabel">Препятствия</div>
+            <textarea class="cc-input" data-k="obstacles" data-i="${i}" maxlength="800">${escapeHtml(String(s.obstacles||"").trim())}</textarea>
+          </div>
+          <div class="cc-planField">
+            <div class="cc-planLabel">Запасные варианты</div>
+            <textarea class="cc-input" data-k="fallback" data-i="${i}" maxlength="800">${escapeHtml(String(s.fallback||"").trim())}</textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderStepsRows_(steps, openIndex){
+  ensurePlanUi_();
+
+  const acc = document.getElementById("plStepsAcc");
+  if(!acc) return;
+
+  let arr = Array.isArray(steps) ? steps.slice(0, PLAN_MAX_STEPS) : [];
+  if(!arr.length) arr = [{}];
+
+  acc.innerHTML = arr.map((s,i)=> planStepItemHtml_(s||{}, i)).join("");
+
+  const add = document.getElementById("btnAddPlanStep");
+  if(add) add.disabled = arr.length >= PLAN_MAX_STEPS;
+
+  // биндим аккордеон как в других блоках
+  bindMiniAccordion_(acc);
+
+  // авто-раскрыть новый шаг
+  if(openIndex != null){
+    const btn = acc.querySelectorAll("[data-cc-acc-btn]")[openIndex];
+    if(btn){
+      btn.click();
+      const ta = acc.querySelector(`[data-i="${openIndex}"][data-k="step"]`);
+      if(ta && ta.focus) ta.focus();
+    }
   }
 }
 
@@ -248,32 +399,7 @@ function collectPlan_(){
   const plan = {
     project_name: document.getElementById("plProject").value.trim(),
     duration: document.getElementById("plDuration").value.trim(),
-    goal: document.getElementById("plGoal").value.trim(),
-    steps:[]
-  };
-  const tbody=document.getElementById("plStepsBody");
-  const tmp={};
-  tbody.querySelectorAll("[data-i]").forEach(el=>{
-    const i=parseInt(el.dataset.i,10);
-    const k=el.dataset.k;
-    tmp[i]=tmp[i]||{};
-    tmp[i][k]=String(el.value||"").trim();
-  });
-  const rows = Object.keys(tmp).map(x=>parseInt(x,10)).sort((a,b)=>a-b);
-  rows.forEach(i=>{
-    const s=tmp[i]||{};
-    const has = Object.values(s).some(v=>v && v.trim());
-    if(has) plan.steps.push({
-      step: s.step||"",
-      deadline: s.deadline||"",
-      resources: s.resources||"",
-      support: s.support||"",
-      obstacles: s.obstacles||"",
-      fallback: s.fallback||""
-    });
-  });
-  return plan;
-}
+    goal:
 
 function fillPlan_(plan){
   const p = plan || {};
