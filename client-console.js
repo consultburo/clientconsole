@@ -685,11 +685,16 @@ const sessionByLastDoneKey = {
   <div class="cc-nextMain">Следующий шаг: <b>${nextLabel}</b></div>
 `;
   const a = access || {};
+  const tabIcoHtml_ = (tab) => {
+    const el = document.querySelector(`.cc-tab[data-tab="${tab}"] .cc-btnIco`);
+    return el ? el.innerHTML : "";
+  };
+
   const nextIconSvg_ = (key) => {
-    if (key === "identity") return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 1 0-16 0"/><circle cx="12" cy="7" r="4"/></svg>`;
-    if (key === "exp")      return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>`;
-    if (key === "skills")   return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-3V5a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2v2H4"/><rect x="2" y="7" width="20" height="14" rx="2"/></svg>`;
-    if (key === "plan")     return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h8"/></svg>`;
+    if (key === "identity") return tabIcoHtml_("identity");
+    if (key === "exp")      return tabIcoHtml_("experience");
+    if (key === "skills")   return tabIcoHtml_("skills");
+    if (key === "plan")     return tabIcoHtml_("plan");
     return "";
   };
 
@@ -2129,6 +2134,7 @@ document.addEventListener("toggle", (e) => {
     .forEach(d => { if (d !== t) d.open = false; });
 }, true);
 }
+</body>
 
 
 
