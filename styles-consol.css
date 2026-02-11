@@ -2289,14 +2289,47 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
  * My Plan (ClientPlan)
  * ====================== */
 .cc-planTopbar{
-  display:flex;
-  justify-content:flex-end;
-  align-items:center;
-  gap:10px;
   position:sticky;
   top:12px;
   z-index:6;
-  margin-bottom:12px;
+
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+
+  padding:12px 14px;
+  border-radius:16px;
+  background:rgba(255,255,255,0.92);
+  border:1px solid rgba(0,0,0,0.06);
+  box-shadow:0 14px 34px rgba(4,61,86,0.10);
+  backdrop-filter:blur(6px);
+
+  margin-bottom:14px;
+}
+.cc-planTopbarRow{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.cc-planTopbarLeft{ min-width:0; }
+.cc-planTopbarTitle{
+  font-weight:900;
+  color:#043D56;
+  font-size:16px;
+  line-height:1.2;
+}
+.cc-planTopbarSub{
+  margin-top:4px;
+  font-size:12px;
+  line-height:1.35;
+  color:#6a7d87;
+}
+.cc-planTopbarRight{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-shrink:0;
 }
 
 .cc-planUpdated{
@@ -2304,6 +2337,32 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
   color:#043D56;
   opacity:.8;
   white-space:nowrap;
+}
+.cc-planProgress{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.cc-planProgressBar{
+  flex:1;
+  height:8px;
+  border-radius:999px;
+  background:rgba(4,61,86,0.10);
+  overflow:hidden;
+}
+.cc-planProgressFill{
+  height:100%;
+  border-radius:999px;
+  background:#043D56;
+  width:0%;
+  transition:width .18s ease;
+}
+.cc-planProgressText{
+  font-size:12px;
+  font-weight:800;
+  color:#043D56;
+  min-width:34px;
+  text-align:right;
 }
 
 .cc-planSteps{
@@ -2325,7 +2384,19 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
 
 .cc-planStep{
   padding:14px;
+  border:1px solid rgba(0,0,0,0.06);
+  box-shadow:0 10px 26px rgba(4,61,86,0.08);
+  transition:transform .14s ease, box-shadow .14s ease, background .14s ease;
 }
+.cc-planStep:hover{
+  transform:translateY(-1px);
+  box-shadow:0 16px 34px rgba(4,61,86,0.12);
+}
+.cc-planStep.cc-acc-open{
+  background:#fbfdff;
+  border-color:rgba(4,61,86,0.12);
+}
+
 
 .cc-planStepHead{
   display:flex;
@@ -2338,6 +2409,27 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
   font-weight:800;
   color:#043D56;
 }
+.cc-planStepLeft{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.cc-planStepDot{
+  width:10px;height:10px;
+  border-radius:999px;
+  border:2px solid rgba(0,0,0,0.10);
+  background:#e9eef2;
+  flex:0 0 auto;
+}
+.cc-planStepDot--empty{ background:#e9eef2; border-color:rgba(0,0,0,0.10); }
+.cc-planStepDot--partial{ background:#043D56; border-color:rgba(4,61,86,0.20); }
+.cc-planStepDot--done{ background:#1f9d55; border-color:rgba(31,157,85,0.25); }
+
+.cc-planStepCount{
+  font-size:12px;
+  font-weight:800;
+  color:#6a7d87;
+}
 
 .cc-planPills{
   display:flex;
@@ -2347,8 +2439,8 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
 }
 
 .cc-planPill{
-  border:1px solid rgba(4,61,86,0.18);
-  background:#f6fbff;
+  border:1px solid rgba(4,61,86,0.14);
+  background:#ffffff;
   color:#043D56;
 }
 
