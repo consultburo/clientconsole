@@ -6,7 +6,7 @@ if (window.__CC_CLIENT_CONSOLE_INIT__) {
  * CONFIG
  * ====================== */
 const USE_JSONP = true; // Вариант A: false (WebApp UI). Вариант B (Tilda): true
-const API_BASE = "https://script.google.com/macros/s/AKfycbxCzQSSCnMxCVk2ROfFZcxH4s9YjLkov7tefdNSwvgHkoc-ZzF6SMSjKU9UD7txBKDX/exec";
+const API_BASE = "https://script.google.com/macros/s/AKfycbxgUgZ-nrzvUz9pM47O2rAPSAfWRpeJFZDYysumia9BMfPD4dPbOPUCbku5JFX7cWM2/exec";
 const API_PROXY_BASE = "";
 
 const STORE_KEY = "profid_client_console_v1";
@@ -227,6 +227,72 @@ const map = { dashboard:"pageDashboard", identity:"pageIdentity", experience:"pa
 const PLAN_MAX_STEPS = 6;
 const PLAN_DURATION_OPTS = ["3 месяца","6 месяцев","1 год","2 года"];
 const PLAN_STATUS_OPTS = ["Завершено","В процессе","Нужна помощь"];
+let PLAN_BASELINE_STR = "";
+let PLAN_SAVING = false;
+
+function planFirstLine_(txt){
+  const s = String(txt||"").trim();
+  if(!s) return "";
+  const i = s.search(/[\r\n]/);
+  return (i>=0 ? s.slice(0,i) : s).trim();
+}
+function planMonthLabel_(ym){
+  const m = String(ym||"").match(/^(\d{4})-(\d{2})$/);
+  return m ? `${m[2]}/${m[1]}` : String(ym||"");
+}
+function planPillsHtml_(dl, st){
+  const a = dl ? `<span class="cc-pill cc-mini cc-planPill cc-planPill--date">${escapeHtml(planMonthLabel_(dl))}</span>` : ``;
+  const b = st ? `<span class="cc-pill cc-mini cc-planPill cc-planPill--status">${escapeHtml(st)}</span>` : ``;
+  return a + b;
+}
+
+function planSetUpdatedAt_(whenStr){
+  const el = document.getElementById("planUpdatedInline");
+  if(el) el.textContent = whenStr ? ("Обновлено: " + whenStr) : "";
+}
+
+function planSetDirty_(dirty){
+  const btn = document.getElementById("btnSavePlan");
+  if(btn) btn.disabled = PLAN_SAVING || !dirty;
+}
+
+function planRecalcDirty_(){
+  let dirty = false;
+  try{ dirty = (JSON.stringify(collectPlan_()) !== PLAN_BASELINE_STR); }catch(_){ dirty = true; }
+  planSetDirty_(dirty);
+  return dirty;
+}
+
+function planSetBaselineFromDom_(){
+  try{ PLAN_BASELINE_STR = JSON.stringify(collectPlan_()); }catch(_){ PLAN_BASELINE_STR = ""; }
+  planSetDirty_(false);
+}
+
+function planSyncStepSummary_(target){
+  const t = target;
+  if(!t || !t.dataset || !t.dataset.k) return;
+  const card = t.closest && t.closest(".cc-planStep");
+  if(!card) return;
+
+  const i = t.dataset.i;
+  const stepEl = card.querySelector(`[data-k="step"][data-i="${i}"]`);
+  const dlEl   = card.querySelector(`[data-k="deadline"][data-i="${i}"]`);
+  const stEl   = card.querySelector(`[data-k="status"][data-i="${i}"]`);
+
+  const stepTxt = stepEl ? String(stepEl.value||"") : "";
+  const dl = normMonth_(dlEl ? dlEl.value : "");
+  const st = stEl ? String(stEl.value||"").trim() : "";
+
+  if(t.dataset.k === "step"){
+    const previewEl = card.querySelector("[data-cc-acc-preview]");
+    if(previewEl){
+      const line = planFirstLine_(stepTxt);
+      previewEl.innerHTML = line ? escapeHtml(line) : `<span class="cc-planEmpty">Заполните “Достижение цели”</span>`;
+    }
+  }
+  const pills = card.querySelector("[data-cc-plan-pills]");
+  if(pills) pills.innerHTML = planPillsHtml_(dl, st);
+}
 
 function ensurePlanUi_(){
   // duration -> select (без правки HTML)
@@ -263,9 +329,18 @@ function ensurePlanUi_(){
       add = document.createElement("button");
       add.type = "button";
       add.id = "btnAddPlanStep";
-      add.className = "cc-btn cc-btn--secondary cc-planAdd";
+      add.className = "cc-btn cc-planAdd";
       add.textContent = "Добавить шаг";
       acc.insertAdjacentElement("afterend", add);
+    }
+
+    let hint = document.getElementById("planStepLimitHint");
+    if(!hint){
+      hint = document.createElement("div");
+      hint.id = "planStepLimitHint";
+      hint.className = "cc-planHint hidden";
+      hint.textContent = "Максимум 6 шагов";
+      add.insertAdjacentElement("afterend", hint);
     }
 
     if(add && add.dataset.bound !== "1"){
@@ -276,13 +351,45 @@ function ensurePlanUi_(){
         if(plan.steps.length >= PLAN_MAX_STEPS) return;
         plan.steps.push({});
         renderStepsRows_(plan.steps, plan.steps.length - 1);
+        planRecalcDirty_();
       });
     }
   }
 
-  // фиксация кнопки "Сохранить" — через CSS
+  // SAVE top-right + inline updated_at (только если кнопка внутри pagePlan)
   const page = document.getElementById("pagePlan");
+  const btn = document.getElementById("btnSavePlan");
+
+  if(btn && !btn.querySelector(".cc-btn-spinner")){
+    const sp = document.createElement("span");
+    sp.className = "cc-btn-spinner hidden";
+    btn.appendChild(sp);
+  }
   if(page) page.classList.add("cc-planPage");
+
+  if(page && btn && page.contains(btn)){
+    let bar = document.getElementById("planTopbar");
+    if(!bar){
+      bar = document.createElement("div");
+      bar.id = "planTopbar";
+      bar.className = "cc-planTopbar";
+
+      const upd = document.createElement("div");
+      upd.id = "planUpdatedInline";
+      upd.className = "cc-planUpdated";
+
+      bar.appendChild(upd);
+      bar.appendChild(btn);
+      page.insertBefore(bar, page.firstChild);
+    }
+  }
+
+  // dirty binding (anti-spam: save кнопка уже блокируется через PLAN_SAVING)
+  if(page && page.dataset.planBound !== "1"){
+    page.dataset.planBound = "1";
+    page.addEventListener("input",(e)=>{ planSyncStepSummary_(e.target); planRecalcDirty_(); });
+    page.addEventListener("change",(e)=>{ planSyncStepSummary_(e.target); planRecalcDirty_(); });
+  }
 }
 
 function normMonth_(v){
@@ -299,8 +406,9 @@ function planStepItemHtml_(s,i){
   const dl = normMonth_(s.deadline||"");
   const st = String(s.status||"").trim();
 
-  const stPill = st ? `<span class="cc-pill cc-mini cc-planPill">${escapeHtml(st)}</span>` : ``;
-  const preview = stepTxt ? escapeHtml(stepTxt) : `<span class="cc-planEmpty">Заполните “Достижение цели”</span>`;
+  const line = planFirstLine_(stepTxt);
+  const preview = line ? escapeHtml(line) : `<span class="cc-planEmpty">Заполните “Достижение цели”</span>`;
+  const pills = planPillsHtml_(dl, st);
 
   const stOptions =
     `<option value=""></option>` +
@@ -311,10 +419,9 @@ function planStepItemHtml_(s,i){
       <div class="cc-planStepHead">
         <div class="cc-planStepLeft">
           <div class="cc-planStepTitle">Шаг ${i+1}</div>
-          <div class="cc-planStepSub">${dl ? `Сроки: ${escapeHtml(dl)}` : `&nbsp;`}</div>
         </div>
         <div class="cc-planStepRight">
-          ${stPill}
+          <span class="cc-planPills" data-cc-plan-pills>${pills}</span>
           <button class="cc-miniToggle" type="button" data-cc-acc-btn aria-expanded="false">
             <span data-cc-acc-text>Показать</span>
             <span class="cc-acc-chev">▾</span>
@@ -381,6 +488,9 @@ function renderStepsRows_(steps, openIndex){
   const add = document.getElementById("btnAddPlanStep");
   if(add) add.disabled = arr.length >= PLAN_MAX_STEPS;
 
+  const hint = document.getElementById("planStepLimitHint");
+  if(hint) hint.classList.toggle("hidden", !(add && add.disabled));
+
   // биндим аккордеон как в других блоках
   bindMiniAccordion_(acc);
 
@@ -397,23 +507,55 @@ function renderStepsRows_(steps, openIndex){
 
 function collectPlan_(){
   const plan = {
-    project_name: document.getElementById("plProject").value.trim(),
-    duration: document.getElementById("plDuration").value.trim(),
-    goal:
+    project_name: (document.getElementById("plProject").value || "").trim(),
+    duration: (document.getElementById("plDuration").value || "").trim(),
+    goal: (document.getElementById("plGoal").value || "").trim(),
+    steps: []
+  };
+
+  const acc = document.getElementById("plStepsAcc");
+  const cards = acc ? acc.querySelectorAll(".cc-planStep") : [];
+  const n = cards && cards.length ? Math.min(cards.length, PLAN_MAX_STEPS) : 1;
+
+  for(let i=0;i<n;i++){
+    const get = (k)=>{
+      const el = acc ? acc.querySelector(`[data-k="${k}"][data-i="${i}"]`) : null;
+      return el ? String(el.value||"").trim() : "";
+    };
+    plan.steps.push({
+      step: get("step"),
+      deadline: normMonth_(get("deadline")),
+      status: get("status"),
+      comments: get("comments"),
+      resources: get("resources"),
+      support: get("support"),
+      obstacles: get("obstacles"),
+      fallback: get("fallback")
+    });
+  }
+
+  return plan;
 }
-function fillPlan_(plan){
+
+function fillPlan_(plan, updatedAt){
+  ensurePlanUi_();
   const p = plan || {};
   document.getElementById("plProject").value = p.project_name || "";
   document.getElementById("plDuration").value = p.duration || "";
   document.getElementById("plGoal").value = p.goal || "";
   renderStepsRows_(p.steps || []);
+  planSetUpdatedAt_(updatedAt || p.updated_at || "");
+  planSetBaselineFromDom_();
 }
+
 /* ======================
  * App logic
  * ====================== */
 async function bootstrap_(){
   // steps rows сразу
   renderStepsRows_([]);
+  ensurePlanUi_();
+  planSetBaselineFromDom_();
 
   document.getElementById("btnLogout").addEventListener("click", ()=>{
     S.clear();
@@ -1131,7 +1273,7 @@ async function loadPlan_(){
   const out = await api_("get_plan",{client_id: st.client_id, session_token: st.session_token});
   if(!out || !out.ok){
     setPlanErr_("Ошибка загрузки плана: " + ((out && out.error) || "unknown"));
-    fillPlan_(null);
+        fillPlan_(null, "");
     return;
   }
   let plan = null;
@@ -1140,7 +1282,7 @@ async function loadPlan_(){
     else if(out.plan && typeof out.plan === "object") plan = out.plan;
     else if(out.plan_json && typeof out.plan_json === "object") plan = out.plan_json;
   }catch(_){}
-  fillPlan_(plan || null);
+   fillPlan_(plan || null, out.updated_at || out.plan_updated_at || "");
 }
 
 async function loadIdentity_(){
@@ -1498,21 +1640,44 @@ function renderExperienceHtml_(exp, sigLocked){
 
 async function savePlan_(){
   setPlanErr_("");
-  const st=S.get();
-  const plan = collectPlan_();
-  const planStr = JSON.stringify(plan);
+  if(PLAN_SAVING) return;
 
-  // MVP: сохраняем через GET (под JSONP тоже подходит)
-  const params = {
-    client_id: st.client_id,
-    session_token: st.session_token,
-    plan_json_b64: b64u_(planStr)
-  };
-  const out = await api_("save_plan", params);
-  if(!out || !out.ok){
-    return setPlanErr_("Ошибка сохранения: " + ((out && out.error) || "unknown"));
+  if(!planRecalcDirty_()) return;
+
+  PLAN_SAVING = true;
+  const btn = document.getElementById("btnSavePlan");
+  const sp = btn ? btn.querySelector(".cc-btn-spinner") : null;
+  if(btn) btn.disabled = true;
+  if(sp) sp.classList.remove("hidden");
+
+  try{
+    const st=S.get();
+    const plan = collectPlan_();
+    const planStr = JSON.stringify(plan);
+
+    const params = {
+      client_id: st.client_id,
+      session_token: st.session_token,
+      plan_json_b64: b64u_(planStr)
+    };
+
+    const out = await api_("save_plan", params);
+    if(!out || !out.ok){
+      setPlanErr_("Ошибка сохранения: " + ((out && out.error) || "unknown"));
+      return;
+    }
+
+    const when = out.updated_at || out.plan_updated_at || "";
+    planSetUpdatedAt_(when);
+    showSaved_(when);
+
+    PLAN_BASELINE_STR = JSON.stringify(plan);
+    planSetDirty_(false);
+  } finally {
+    PLAN_SAVING = false;
+    if(sp) sp.classList.add("hidden");
+    planRecalcDirty_();
   }
-  showSaved_(out.updated_at || out.plan_updated_at || "");
 }
 
 const SVG_HDR_VIA = `<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
@@ -2259,7 +2424,6 @@ document.addEventListener("toggle", (e) => {
     .forEach(d => { if (d !== t) d.open = false; });
 }, true);
 }
-
 
 
 
