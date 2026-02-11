@@ -1,4 +1,3 @@
-<script>
 if (window.__CC_CLIENT_CONSOLE_INIT__) {
   // already inited
 } else {
@@ -2130,9 +2129,7 @@ document.addEventListener("toggle", (e) => {
     .forEach(d => { if (d !== t) d.open = false; });
 }, true);
 }
-</script>
-
-
 </body>
-</html>
+
+
 
