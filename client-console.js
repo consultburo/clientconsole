@@ -6,7 +6,7 @@ if (window.__CC_CLIENT_CONSOLE_INIT__) {
  * CONFIG
  * ====================== */
 const USE_JSONP = true; // Вариант A: false (WebApp UI). Вариант B (Tilda): true
-const API_BASE = "https://script.google.com/macros/s/AKfycbxgUgZ-nrzvUz9pM47O2rAPSAfWRpeJFZDYysumia9BMfPD4dPbOPUCbku5JFX7cWM2/exec";
+const API_BASE = "https://script.google.com/macros/s/AKfycbzXBhHR6yTG-dSduF4L7l61Pbs-L4OmJXs2-T2t-ylQ6PtB4yyLMyn3KL4udQ6YjswF/exec";
 const API_PROXY_BASE = "";
 
 const STORE_KEY = "profid_client_console_v1";
