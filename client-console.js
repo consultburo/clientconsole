@@ -240,11 +240,39 @@ function planMonthLabel_(ym){
   const m = String(ym||"").match(/^(\d{4})-(\d{2})$/);
   return m ? `${m[2]}/${m[1]}` : String(ym||"");
 }
-function planPillsHtml_(dl, st){
-  const a = dl ? `<span class="cc-pill cc-mini cc-planPill cc-planPill--date">${escapeHtml(planMonthLabel_(dl))}</span>` : ``;
-  const b = st ? `<span class="cc-pill cc-mini cc-planPill cc-planPill--status">${escapeHtml(st)}</span>` : ``;
-  return a + b;
+function planStepMeta_(stepTxt, dl){
+  const a = String(stepTxt||"").trim() ? 1 : 0;
+  const b = String(dl||"").trim() ? 1 : 0;
+  const filled = a + b;
+  const cls = filled === 0 ? "cc-planStepDot--empty" : (filled === 2 ? "cc-planStepDot--done" : "cc-planStepDot--partial");
+  return { filled, total: 2, cls };
 }
+
+function planUpdateProgress_(plan){
+  const p = plan || collectPlan_();
+
+  const baseTotal = 2; // Название проекта + Цель
+  const baseFilled =
+    (String(p.project_name||"").trim() ? 1 : 0) +
+    (String(p.goal||"").trim() ? 1 : 0);
+
+  const stepsArr = Array.isArray(p.steps) ? p.steps : [];
+  const stepsTotal = stepsArr.length; // считаем каждый шаг
+  let stepsFilled = 0;
+  for(let i=0;i<stepsArr.length;i++){
+    if(String(stepsArr[i]?.step||"").trim()) stepsFilled += 1; // минимум: “Достижение цели”
+  }
+
+  const total = baseTotal + stepsTotal;
+  const filled = baseFilled + stepsFilled;
+  const pct = total ? Math.round((filled / total) * 100) : 0;
+
+  const fill = document.getElementById("planProgressFill");
+  const tx = document.getElementById("planProgressText");
+  if(fill) fill.style.width = pct + "%";
+  if(tx) tx.textContent = pct + "%";
+}
+
 
 function planSetUpdatedAt_(whenStr){
   const el = document.getElementById("planUpdatedInline");
@@ -258,11 +286,20 @@ function planSetDirty_(dirty){
 
 function planRecalcDirty_(){
   let dirty = false;
-  try{ dirty = (JSON.stringify(collectPlan_()) !== PLAN_BASELINE_STR); }catch(_){ dirty = true; }
+  let plan = null;
+
+  try{
+    plan = collectPlan_();
+    const s = JSON.stringify(plan);
+    dirty = (s !== PLAN_BASELINE_STR);
+  }catch(_){
+    dirty = true;
+  }
+
   planSetDirty_(dirty);
+  planUpdateProgress_(plan);
   return dirty;
 }
-
 function planSetBaselineFromDom_(){
   try{ PLAN_BASELINE_STR = JSON.stringify(collectPlan_()); }catch(_){ PLAN_BASELINE_STR = ""; }
   planSetDirty_(false);
@@ -292,6 +329,14 @@ function planSyncStepSummary_(target){
   }
   const pills = card.querySelector("[data-cc-plan-pills]");
   if(pills) pills.innerHTML = planPillsHtml_(dl, st);
+  const meta = planStepMeta_(stepTxt, dl);
+  const dot = card.querySelector(".cc-planStepDot");
+  if(dot){
+    dot.classList.remove("cc-planStepDot--empty","cc-planStepDot--partial","cc-planStepDot--done");
+    dot.classList.add(meta.cls);
+  }
+  const cnt = card.querySelector(".cc-planStepCount");
+  if(cnt) cnt.textContent = `${meta.filled}/${meta.total}`;
 }
 
 function ensurePlanUi_(){
@@ -356,7 +401,7 @@ function ensurePlanUi_(){
     }
   }
 
-  // SAVE top-right + inline updated_at (только если кнопка внутри pagePlan)
+    // SAVE sticky bar inside pagePlan + inline updated_at + progress
   const page = document.getElementById("pagePlan");
   const btn = document.getElementById("btnSavePlan");
 
@@ -374,16 +419,42 @@ function ensurePlanUi_(){
       bar.id = "planTopbar";
       bar.className = "cc-planTopbar";
 
+      const row = document.createElement("div");
+      row.className = "cc-planTopbarRow";
+
+      const left = document.createElement("div");
+      left.className = "cc-planTopbarLeft";
+      left.innerHTML = `
+        <div class="cc-planTopbarTitle">Профессиональный план</div>
+        <div class="cc-planTopbarSub">Заполните поля и шаги — прогресс отразится ниже.</div>
+      `;
+
+      const right = document.createElement("div");
+      right.className = "cc-planTopbarRight";
+
       const upd = document.createElement("div");
       upd.id = "planUpdatedInline";
       upd.className = "cc-planUpdated";
 
-      bar.appendChild(upd);
-      bar.appendChild(btn);
+      right.appendChild(upd);
+      right.appendChild(btn);
+
+      row.appendChild(left);
+      row.appendChild(right);
+
+      const prog = document.createElement("div");
+      prog.className = "cc-planProgress";
+      prog.innerHTML = `
+        <div class="cc-planProgressBar"><div id="planProgressFill" class="cc-planProgressFill" style="width:0%"></div></div>
+        <div id="planProgressText" class="cc-planProgressText">0%</div>
+      `;
+
+      bar.appendChild(row);
+      bar.appendChild(prog);
+
       page.insertBefore(bar, page.firstChild);
     }
   }
-
   // dirty binding (anti-spam: save кнопка уже блокируется через PLAN_SAVING)
   if(page && page.dataset.planBound !== "1"){
     page.dataset.planBound = "1";
@@ -405,6 +476,9 @@ function planStepItemHtml_(s,i){
   const stepTxt = String(s.step||"").trim();
   const dl = normMonth_(s.deadline||"");
   const st = String(s.status||"").trim();
+  const meta = planStepMeta_(stepTxt, dl);
+  const dot = `<span class="cc-planStepDot ${meta.cls}" aria-hidden="true"></span>`;
+  const count = `<span class="cc-planStepCount">${meta.filled}/${meta.total}</span>`;
 
   const line = planFirstLine_(stepTxt);
   const preview = line ? escapeHtml(line) : `<span class="cc-planEmpty">Заполните “Достижение цели”</span>`;
@@ -417,9 +491,11 @@ function planStepItemHtml_(s,i){
   return `
     <div class="cc-card cc-planStep" data-cc-acc>
       <div class="cc-planStepHead">
-        <div class="cc-planStepLeft">
-          <div class="cc-planStepTitle">Шаг ${i+1}</div>
-        </div>
+       <div class="cc-planStepLeft">
+      ${dot}
+      <div class="cc-planStepTitle">Шаг ${i+1}</div>
+      ${count}
+      </div>
         <div class="cc-planStepRight">
           <span class="cc-planPills" data-cc-plan-pills>${pills}</span>
           <button class="cc-miniToggle" type="button" data-cc-acc-btn aria-expanded="false">
@@ -546,6 +622,7 @@ function fillPlan_(plan, updatedAt){
   renderStepsRows_(p.steps || []);
   planSetUpdatedAt_(updatedAt || p.updated_at || "");
   planSetBaselineFromDom_();
+  planUpdateProgress_();
 }
 
 /* ======================
@@ -790,6 +867,7 @@ function bindMiniAccordion_(root){
     const nextOpen = !isOpen;
 
     btn.setAttribute("aria-expanded", nextOpen ? "true" : "false");
+    wrap.classList.toggle("cc-acc-open", nextOpen);
 
     // toggle blocks
     preview.style.display = nextOpen ? "none" : "";
