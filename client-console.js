@@ -400,7 +400,7 @@ function collectPlan_(){
     project_name: document.getElementById("plProject").value.trim(),
     duration: document.getElementById("plDuration").value.trim(),
     goal:
-
+}
 function fillPlan_(plan){
   const p = plan || {};
   document.getElementById("plProject").value = p.project_name || "";
@@ -408,7 +408,6 @@ function fillPlan_(plan){
   document.getElementById("plGoal").value = p.goal || "";
   renderStepsRows_(p.steps || []);
 }
-
 /* ======================
  * App logic
  * ====================== */
@@ -2260,6 +2259,7 @@ document.addEventListener("toggle", (e) => {
     .forEach(d => { if (d !== t) d.open = false; });
 }, true);
 }
+
 
 
 
