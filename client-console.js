@@ -699,7 +699,7 @@ const sessionByLastDoneKey = {
   };
 
   const gateRow = (key, label, ok) => `
-    <div class="cc-nextRow">
+      <div class="cc-nextRow ${ok ? "ok" : "no"}">
       <span class="cc-nextLeft">
         <span class="cc-nextIco" aria-hidden="true">${nextIconSvg_(key)}</span>
         <span class="cc-nextName">${escapeHtml(label)}</span>
@@ -2134,7 +2134,6 @@ document.addEventListener("toggle", (e) => {
     .forEach(d => { if (d !== t) d.open = false; });
 }, true);
 }
-
 
 
 
