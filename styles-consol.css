@@ -390,6 +390,24 @@
 
 .plan-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
     @media (max-width: 900px){.plan-grid{grid-template-columns:1fr}}
+
+/* Plan: Block A = hero-subcard */
+.cc-planPage .plan-grid{
+  grid-template-columns: 5fr 3fr 4fr;
+  gap: 14px;
+
+  padding: 14px;
+  border-radius: 14px;
+  background: #fbfdff;
+  border: 1px solid rgba(4,61,86,0.10);
+  box-shadow: 0 10px 26px rgba(4,61,86,0.06);
+  margin-top: 10px;
+}
+
+@media (max-width: 900px){
+  .cc-planPage .plan-grid{ grid-template-columns: 1fr; }
+}
+
 /* Auth (shadcn-like) */
 #authPane{
   min-height: calc(100vh - 80px);
@@ -2331,6 +2349,33 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
   gap:10px;
   flex-shrink:0;
 }
+
+.cc-planTopbarRight{
+  gap: 12px;
+}
+
+/* "Добавить шаг" = secondary */
+.cc-planAddTop{
+  border: 1px solid rgba(4,61,86,0.18);
+  background: #fff;
+  color: #043D56;
+  font-weight: 800;
+}
+.cc-planAddTop:hover{
+  background: rgba(4,61,86,0.04);
+}
+
+/* "Сохранить" = primary (только на странице плана) */
+.cc-planPage #btnSavePlan{
+  background: #043D56;
+  color: #fff;
+  border-color: rgba(4,61,86,0.24);
+}
+.cc-planPage #btnSavePlan:hover{
+  filter: brightness(0.97);
+}
+
+
 /* Plan: Add-step button in topbar (secondary рядом с primary Save) */
 .cc-planAddTop{
   padding: 8px 12px;
@@ -2377,6 +2422,13 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
   min-width:34px;
   text-align:right;
 }
+.cc-planKpi{
+  padding: 5px 9px;
+}
+.cc-planProgressText{
+  min-width: 30px;
+}
+
 .cc-planKpis{
   display:flex;
   align-items:center;
