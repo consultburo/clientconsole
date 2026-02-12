@@ -424,16 +424,6 @@ function ensurePlanUi_(){
     if(wrap) wrap.remove();
     else if(table) table.remove();
 
-
-    let acc = document.getElementById("plStepsAcc");
-    if(!acc){
-      acc = document.createElement("div");
-      acc.id = "plStepsAcc";
-      acc.className = "cc-planSteps";
-      if(table) table.parentNode.insertBefore(acc, table);
-      else tbody.parentNode.insertBefore(acc, tbody);
-    }
-
     let add = document.getElementById("btnAddPlanStep");
     if(!add){
       add = document.createElement("button");
