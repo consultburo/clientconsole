@@ -277,19 +277,50 @@ function planUpdateProgress_(plan){
   const tx = document.getElementById("planProgressText");
   if(fill) fill.style.width = pct + "%";
   if(tx) tx.textContent = pct + "%";
+  const k1 = document.getElementById("planKpiFilled");
+  if(k1) k1.textContent = `${filled}/${total}`;
+  const k2 = document.getElementById("planKpiSteps");
+  if(k2) k2.textContent = `${stepsFilled}/${stepsTotal}`;
 }
 
+function planNormalizeLayout_(){
+  const page = document.getElementById("pagePlan");
+  if(!page || page.dataset.planNorm === "1") return;
+  page.dataset.planNorm = "1";
+
+  // 1) Убираем дубль заголовка "Профессиональный план" внутри формы (оставляем только topbar)
+  const bar = document.getElementById("planTopbar");
+  const heads = page.querySelectorAll("h1,h2,h3,h4,.cc-h1,.cc-h2,.cc-h3,.cc-title,.cc-pageTitle");
+  for(const el of heads){
+    const t = (el.textContent || "").replace(/\s+/g," ").trim();
+    if(t === "Профессиональный план" && !(bar && bar.contains(el))){
+      el.remove();
+      break;
+    }
+  }
+
+  // 2) Сплющиваем лишний вложенный контейнер вокруг шагов (если он реально вложен "карточкой в карточке")
+  const acc = document.getElementById("plStepsAcc");
+  if(!acc) return;
+
+  const inner = acc.closest(".cc-card,.cc-panel,.cc-box");
+  if(!inner) return;
+
+  // Если внутри другой оболочки такого же типа — считаем это "лишним контейнером"
+  const outer = inner.parentElement && inner.parentElement.closest(".cc-card,.cc-panel,.cc-box");
+  if(outer && outer !== inner){
+    inner.classList.add("cc-planFlatCard");
+  }
+}
 
 function planSetUpdatedAt_(whenStr){
   const el = document.getElementById("planUpdatedInline");
   if(el) el.textContent = whenStr ? ("Обновлено: " + whenStr) : "";
 }
-
 function planSetDirty_(dirty){
   const btn = document.getElementById("btnSavePlan");
   if(btn) btn.disabled = PLAN_SAVING || !dirty;
 }
-
 function planRecalcDirty_(){
   let dirty = false;
   let plan = null;
@@ -301,7 +332,6 @@ function planRecalcDirty_(){
   }catch(_){
     dirty = true;
   }
-
   planSetDirty_(dirty);
   planUpdateProgress_(plan);
   return dirty;
@@ -310,7 +340,6 @@ function planSetBaselineFromDom_(){
   try{ PLAN_BASELINE_STR = JSON.stringify(collectPlan_()); }catch(_){ PLAN_BASELINE_STR = ""; }
   planSetDirty_(false);
 }
-
 function planSyncStepSummary_(target){
   const t = target;
   if(!t || !t.dataset || !t.dataset.k) return;
@@ -344,7 +373,6 @@ function planSyncStepSummary_(target){
   const cnt = card.querySelector(".cc-planStepCount");
   if(cnt) cnt.textContent = `${meta.filled}/${meta.total}`;
 }
-
 function ensurePlanUi_(){
   // duration -> select (без правки HTML)
   const d = document.getElementById("plDuration");
@@ -450,17 +478,26 @@ function ensurePlanUi_(){
 
       const prog = document.createElement("div");
       prog.className = "cc-planProgress";
-      prog.innerHTML = `
+            prog.innerHTML = `
         <div class="cc-planProgressBar"><div id="planProgressFill" class="cc-planProgressFill" style="width:0%"></div></div>
+        <div class="cc-planKpis">
+          <span class="cc-planKpi"><span class="cc-planKpiLbl">Заполнено</span> <span id="planKpiFilled" class="cc-planKpiVal">0/0</span></span>
+          <span class="cc-planKpiSep"></span>
+          <span class="cc-planKpi"><span class="cc-planKpiLbl">Шаги</span> <span id="planKpiSteps" class="cc-planKpiVal">0/0</span></span>
+        </div>
         <div id="planProgressText" class="cc-planProgressText">0%</div>
       `;
+
 
       bar.appendChild(row);
       bar.appendChild(prog);
 
       page.insertBefore(bar, page.firstChild);
+      planNormalizeLayout_();
     }
   }
+  planNormalizeLayout_();
+
   // dirty binding (anti-spam: save кнопка уже блокируется через PLAN_SAVING)
   if(page && page.dataset.planBound !== "1"){
     page.dataset.planBound = "1";
