@@ -311,6 +311,20 @@ function planNormalizeLayout_(){
   if(outer && outer !== inner){
     inner.classList.add("cc-planFlatCard");
   }
+  // 3) Убираем лишний "Шаги" и inline margin-top у блока шагов (legacy разметка Tilda)
+  const tbody = document.getElementById("plStepsBody");
+  if(tbody){
+    const wrap = tbody.closest(".plan-table-wrap");
+    const block = wrap ? wrap.parentElement : null; // это div style="margin-top:14px;"
+    if(block){
+      if(block.style && block.style.marginTop) block.style.marginTop = "0px";
+      const lbls = block.querySelectorAll(".cc-label");
+      for(const el of lbls){
+        const t = (el.textContent||"").replace(/\s+/g," ").trim();
+        if(t === "Шаги"){ el.remove(); break; }
+      }
+    }
+  }
 }
 
 function planSetUpdatedAt_(whenStr){
@@ -392,7 +406,24 @@ function ensurePlanUi_(){
   const tbody = document.getElementById("plStepsBody");
   if(tbody){
     const table = tbody.closest("table");
-    if(table) table.classList.add("hidden");
+    const wrap  = table ? table.closest(".plan-table-wrap") : null;
+
+    // Куда вставлять новый аккордеон (до legacy-контейнера)
+    const host   = (wrap && wrap.parentNode) ? wrap.parentNode : (table && table.parentNode) ? table.parentNode : tbody.parentNode;
+    const anchor = wrap || table || tbody;
+
+    let acc = document.getElementById("plStepsAcc");
+    if(!acc){
+      acc = document.createElement("div");
+      acc.id = "plStepsAcc";
+      acc.className = "cc-planSteps";
+      host.insertBefore(acc, anchor);
+    }
+
+    // legacy UI больше не нужен: убираем контейнер целиком (это и есть "лишний контейнер")
+    if(wrap) wrap.remove();
+    else if(table) table.remove();
+
 
     let acc = document.getElementById("plStepsAcc");
     if(!acc){
@@ -470,9 +501,16 @@ function ensurePlanUi_(){
       upd.id = "planUpdatedInline";
       upd.className = "cc-planUpdated";
 
-      right.appendChild(upd);
-      right.appendChild(btn);
+          right.appendChild(upd);
 
+      // move "Добавить шаг" into topbar рядом с "Сохранить"
+      const addTop = document.getElementById("btnAddPlanStep");
+      if(addTop){
+        addTop.classList.add("cc-planAddTop");
+        right.appendChild(addTop);
+      }
+
+      right.appendChild(btn);
       row.appendChild(left);
       row.appendChild(right);
 
