@@ -2364,6 +2364,37 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
   min-width:34px;
   text-align:right;
 }
+.cc-planKpis{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex:0 0 auto;
+}
+.cc-planKpi{
+  display:inline-flex;
+  align-items:baseline;
+  gap:6px;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid rgba(4,61,86,0.14);
+  background:#fff;
+  white-space:nowrap;
+}
+.cc-planKpiLbl{
+  font-size:12px;
+  color:#6a7d87;
+  font-weight:700;
+}
+.cc-planKpiVal{
+  font-size:12px;
+  color:#043D56;
+  font-weight:900;
+}
+.cc-planKpiSep{
+  width:1px;
+  height:18px;
+  background:rgba(4,61,86,0.12);
+}
 
 .cc-planSteps{
   display:flex;
