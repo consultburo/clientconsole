@@ -436,7 +436,7 @@ function ensurePlanUi_(){
   }
 
     // SAVE sticky bar inside pagePlan + inline updated_at + progress
-  const page = document.getElementById("pagePlan");
+  const page = document.getElementById("planShell") || document.getElementById("pagePlan");
   const btn = document.getElementById("btnSavePlan");
 
   if(btn && !btn.querySelector(".cc-btn-spinner")){
