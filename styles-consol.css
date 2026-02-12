@@ -2402,6 +2402,13 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
   gap:12px;
   margin-top:12px;
 }
+/* Plan: flatten nested container (remove "card-in-card") */
+.cc-planFlatCard{
+  border:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  padding:0 !important;
+}
 
 .cc-planAdd{
   margin-top:10px;
