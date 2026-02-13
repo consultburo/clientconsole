@@ -406,8 +406,10 @@
 .cc-planPage .plan-grid > :nth-child(2){
   justify-self:end;
 }
-.cc-planPage .plan-grid > :nth-child(2) .cc-input{
-  max-width:260px;
+.cc-planPage .plan-grid > :nth-child(2) .cc-input,
+.cc-planPage .plan-grid > :nth-child(2) select{
+  max-width:220px;
+  margin-left:auto;
 }
 
 .cc-planPage .plan-grid > :nth-child(1){ grid-area:project; }
@@ -417,14 +419,13 @@
 @media (max-width:900px){
   .cc-planPage .plan-grid{
     grid-template-columns:1fr;
-    grid-template-areas:
+     grid-template-areas:
       "project"
-      "duration"
-      "goal";
+      "goal"
+      "duration";
   }
   .cc-planPage .plan-grid > :nth-child(2){ justify-self:stretch; }
   .cc-planPage .plan-grid > :nth-child(2) .cc-input{ max-width:none; }
-
 }
 
 /* Auth (shadcn-like) */
