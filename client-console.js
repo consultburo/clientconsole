@@ -248,6 +248,7 @@ function planPillsHtml_(dl, st){
 function planStatusBadgeClass_(st){
   const s = String(st||"").trim().toLowerCase();
   if(!s) return "cc-planBadge--empty";
+  if(s.includes("помощ") || s.includes("help")) return "cc-planBadge--pause";
   if(s.includes("заверш")) return "cc-planBadge--done";
   if(s.includes("пауз")) return "cc-planBadge--pause";
   if(s.includes("работ") || s.includes("процесс")) return "cc-planBadge--work";
@@ -597,8 +598,8 @@ function planStepItemHtml_(s,i){
         </div>
 
         <div class="cc-planStepRight">
-          <button type="button" class="cc-planStepChevron" data-cc-acc-btn aria-expanded="false">
-            <span class="cc-visuallyHidden" data-cc-acc-text>Показать</span>
+          <button class="cc-planStepChevron" data-cc-acc-btn aria-expanded="false" aria-label="Открыть/закрыть шаг">
+          <span class="cc-visuallyHidden">Открыть/закрыть шаг</span>
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
           </button>
         </div>
@@ -962,17 +963,19 @@ function bindMiniAccordion_(root){
 
     const isOpen = btn.getAttribute("aria-expanded") === "true";
     const nextOpen = !isOpen;
+    const isPlanStep = wrap.classList.contains("cc-planStep");
 
     btn.setAttribute("aria-expanded", nextOpen ? "true" : "false");
     wrap.classList.toggle("cc-acc-open", nextOpen);
 
-    // toggle blocks
-    preview.style.display = nextOpen ? "none" : "";
-    full.style.display    = nextOpen ? "block" : "none";
+      // toggle blocks (plan step: preview не скрываем)
+    if(!isPlanStep) preview.style.display = nextOpen ? "none" : "";
+    full.style.display = nextOpen ? "block" : "none";
 
-    const t = btn.querySelector("[data-cc-acc-text]");
+
+    const t = (!isPlanStep) ? btn.querySelector("[data-cc-acc-text]") : null;
     if(t) t.textContent = nextOpen ? "Скрыть" : "Показать";
-    else btn.textContent = nextOpen ? "Скрыть" : "Показать";
+    else if(!isPlanStep) btn.textContent = nextOpen ? "Скрыть" : "Показать";
   });
 }
 
