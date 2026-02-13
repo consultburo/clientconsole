@@ -394,14 +394,22 @@
 /* Plan: Block A = hero-subcard */
 .cc-planPage .plan-grid{
   display:grid;
-  grid-template-columns:3fr 2fr;
+  grid-template-columns:minmax(0,3fr) minmax(0,2fr);
   grid-template-areas:
     "project duration"
     "goal duration";
   gap:12px;
   margin-top:14px;
   align-items:start;
+  width:100%;
 }
+.cc-planPage .plan-grid > :nth-child(2){
+  justify-self:end;
+}
+.cc-planPage .plan-grid > :nth-child(2) .cc-input{
+  max-width:260px;
+}
+
 .cc-planPage .plan-grid > :nth-child(1){ grid-area:project; }
 .cc-planPage .plan-grid > :nth-child(2){ grid-area:duration; }
 .cc-planPage .plan-grid > :nth-child(3){ grid-area:goal; }
@@ -414,10 +422,10 @@
       "duration"
       "goal";
   }
+  .cc-planPage .plan-grid > :nth-child(2){ justify-self:stretch; }
+  .cc-planPage .plan-grid > :nth-child(2) .cc-input{ max-width:none; }
+
 }
-
-
-
 
 /* Auth (shadcn-like) */
 #authPane{
@@ -2318,8 +2326,8 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
  * My Plan (ClientPlan)
  * ====================== */
 .cc-planTopbar{
-  position:sticky;
-  top:12px;
+  position:relative;
+  top:auto;
   z-index:6;
 
   display:flex;
@@ -2381,6 +2389,11 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
   background: #043D56;
   color: #fff;
   border-color: rgba(4,61,86,0.24);
+  height:40px;
+  padding:0 14px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
 }
 .cc-planPage #btnSavePlan:hover{
   filter: brightness(0.97);
@@ -2390,6 +2403,11 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
 /* Plan: Add-step button in topbar (secondary рядом с primary Save) */
 .cc-planAddTop{
   padding: 8px 12px;
+  height:40px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
   border-radius: 12px;
   border: 1px solid rgba(4,61,86,0.16);
   background: #fff;
@@ -2529,7 +2547,37 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
 
 .cc-planStepLeft{ grid-area:left; }
 .cc-planSummary{ grid-area:sum; min-width:0; }
-.cc-planStepRight{ grid-area:toggle; }
+.cc-planStepRight{ grid-area:toggle; display:flex; justify-content:flex-end; }
+.cc-planStepChevron{
+  width:22px;height:22px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:999px;
+  border:1px solid rgba(4,61,86,0.16);
+  background:rgba(255,255,255,0.95);
+  color:#043D56;
+  cursor:pointer;
+  transition:transform .16s ease, background .16s ease, border-color .16s ease;
+  padding:0;
+}
+.cc-planStepChevron svg{
+  width:14px;height:14px;
+  display:block;
+}
+.cc-planStep:hover .cc-planStepChevron{
+  background:rgba(4,61,86,0.04);
+  border-color:rgba(4,61,86,0.22);
+}
+.cc-acc-open .cc-planStepChevron{ transform:rotate(180deg); }
+
+.cc-visuallyHidden{
+  position:absolute !important;
+  height:1px;width:1px;
+  overflow:hidden;
+  clip:rect(1px,1px,1px,1px);
+  white-space:nowrap;
+}
 
 .cc-planStepTitle{
   font-weight:800;
