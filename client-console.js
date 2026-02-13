@@ -562,6 +562,72 @@ function normMonth_(v){
   if(m) return `${m[2]}-${m[1]}`;
   return s;
 }
+function planNeedMonthPickerFallback_(){
+  return /firefox/i.test(navigator.userAgent || "");
+}
+
+function planEnhanceMonthPickers_(root){
+  if(!root || !planNeedMonthPickerFallback_()) return;
+
+  const months = [
+    ["01","январь"],["02","февраль"],["03","март"],["04","апрель"],
+    ["05","май"],["06","июнь"],["07","июль"],["08","август"],
+    ["09","сентябрь"],["10","октябрь"],["11","ноябрь"],["12","декабрь"]
+  ];
+
+  const nowY = (new Date()).getFullYear();
+  const yMin = nowY - 1;
+  const yMax = nowY + 10;
+
+  root.querySelectorAll('input[type="month"][data-k="deadline"]').forEach((inp)=>{
+    if(inp.dataset.ccMonthPick === "1") return;
+    inp.dataset.ccMonthPick = "1";
+
+    const v = normMonth_(inp.value);
+    const y0 = v ? v.slice(0,4) : "";
+    const m0 = v ? v.slice(5,7) : "";
+
+    const wrap = document.createElement("div");
+    wrap.className = "cc-monthPick";
+
+    const selM = document.createElement("select");
+    selM.className = "cc-input";
+    selM.setAttribute("aria-label","Месяц");
+    selM.innerHTML = `<option value=""></option>` + months.map(([mm,lab]) =>
+      `<option value="${mm}">${lab}</option>`
+    ).join("");
+
+    const selY = document.createElement("select");
+    selY.className = "cc-input";
+    selY.setAttribute("aria-label","Год");
+    let yHtml = `<option value=""></option>`;
+    for(let y=yMin; y<=yMax; y++) yHtml += `<option value="${y}">${y}</option>`;
+    selY.innerHTML = yHtml;
+
+    if(m0) selM.value = m0;
+    if(y0) selY.value = y0;
+
+    const commit = ()=>{
+      const yy = selY.value;
+      const mm = selM.value;
+      const next = (yy && mm) ? `${yy}-${mm}` : "";
+      if(inp.value === next) return;
+      inp.value = next;
+      inp.dispatchEvent(new Event("change",{bubbles:true}));
+    };
+
+    selM.addEventListener("change", commit);
+    selY.addEventListener("change", commit);
+
+    const field = inp.parentNode;
+    field.insertBefore(wrap, inp);
+    wrap.appendChild(selM);
+    wrap.appendChild(selY);
+
+    inp.type = "hidden";
+    wrap.appendChild(inp);
+  });
+}
 
 function planStepItemHtml_(s,i){
   const stepTxt = String(s.step||"").trim();
@@ -616,12 +682,13 @@ function planStepItemHtml_(s,i){
             <input class="cc-input" type="month" data-k="deadline" data-i="${i}" value="${escapeHtml(dl)}">
           </div>
           <div class="cc-planField">
-            <div class="cc-planLabel">Статус</div>
-            <select class="cc-input" data-k="status" data-i="${i}">${stOptions}</select>
-          </div>
-          <div class="cc-planField">
+                  <div class="cc-planField">
             <div class="cc-planLabel">Комментарии</div>
             <textarea class="cc-input" data-k="comments" data-i="${i}" maxlength="600">${escapeHtml(String(s.comments||"").trim())}</textarea>
+          </div>
+          <div class="cc-planField">
+            <div class="cc-planLabel">Статус</div>
+            <select class="cc-input" data-k="status" data-i="${i}">${stOptions}</select>
           </div>
         </div>
 
@@ -658,6 +725,7 @@ function renderStepsRows_(steps, openIndex){
   if(!arr.length) arr = [{}];
 
   acc.innerHTML = arr.map((s,i)=> planStepItemHtml_(s||{}, i)).join("");
+  planEnhanceMonthPickers_(acc);
 
   const add = document.getElementById("btnAddPlanStep");
   if(add) add.disabled = arr.length >= PLAN_MAX_STEPS;
