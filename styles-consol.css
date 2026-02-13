@@ -2635,23 +2635,16 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
 
 @media (max-width: 700px){
   .cc-planSummary{
-    grid-template-columns: 1fr;
+    grid-template-columns:1fr 1fr;
+    grid-template-areas:
+      "ach ach"
+      "dl st";
     gap:8px;
     margin-top:10px;
   }
-  .cc-planSumAch{ white-space:nowrap; }
-  .cc-planSumDl{
-    display:inline-block;
-    width:50%;
-  }
-  .cc-planSumSt{
-    justify-content:flex-start;
-  }
-  .cc-planSummary .cc-planSumDl,
-  .cc-planSummary .cc-planSumSt{
-    display:inline-flex;
-    align-items:center;
-  }
+  .cc-planSumAch{ grid-area:ach; white-space:nowrap; }
+  .cc-planSumDl{ grid-area:dl; }
+  .cc-planSumSt{ grid-area:st; justify-content:flex-end; }
 }
 
 .cc-planEmpty{
