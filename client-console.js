@@ -579,18 +579,36 @@ function planStepItemHtml_(s,i){
 
   return `
     <div class="cc-card cc-planStep" data-cc-acc>
-      <div class="cc-planStepHead">
-       <div class="cc-planStepLeft">
-      ${dot}
-      <div class="cc-planStepTitle">Шаг ${i+1}</div>
-      ${count}
+<div class="cc-planStepHead">
+  <div class="cc-planStepLeft">
+    <span class="cc-planStepDot ${planStepDotClass_(step)}"></span>
+    <div class="cc-planStepTitle">
+      <div class="cc-planStepTitleTop">Шаг ${idx+1} <span class="cc-muted">0/2</span></div>
+    </div>
+  </div>
+
+  <div class="cc-planSummary" aria-label="Резюме шага">
+    <div class="cc-planSummaryWrap">
+      <div class="cc-planSummaryCol">
+        <div class="cc-planSummaryLabel">Достижение</div>
+        <div class="cc-planSummaryValue">${achText}</div>
       </div>
-     <div class="cc-planStepRight">
-  <button class="cc-miniToggle" type="button" data-cc-acc-btn aria-expanded="false">
-    <span data-cc-acc-text>Показать</span>
-    <span class="cc-acc-chev">▾</span>
-  </button>
+      <div class="cc-planSummaryCol">
+        <div class="cc-planSummaryLabel">Срок</div>
+        <div class="cc-planSummaryValue">${deadText}</div>
+      </div>
+      <div class="cc-planSummaryCol">
+        <div class="cc-planSummaryLabel">Статус</div>
+        <div class="cc-planSummaryValue">${statusText}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cc-planStepRight">
+    <span class="cc-miniAcc-toggle" data-cc-acc-btn>Показать <span class="cc-miniAcc-chevron">▼</span></span>
+  </div>
 </div>
+
 
 <div class="cc-planSummary" aria-label="Резюме шага">
   <div class="cc-planSumAch" data-cc-plan-ach>${ach}</div>
