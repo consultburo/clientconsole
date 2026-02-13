@@ -396,8 +396,8 @@
   display:grid;
   grid-template-columns:minmax(0,3fr) minmax(0,2fr);
   grid-template-areas:
-    "project duration"
-    "goal duration";
+  "project duration"
+  "goal goal";
   gap:12px;
   margin-top:14px;
   align-items:start;
@@ -2415,6 +2415,7 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
   color: #043D56;
   font-weight: 800;
   box-shadow: none;
+  box-sizing:border-box;
 }
 .cc-planAddTop:hover{
   background: rgba(4,61,86,0.04);
@@ -2726,6 +2727,13 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
 .cc-planField .cc-input{
   width:100%;
   min-width:0;
+}
+.cc-planPage .cc-monthPick{
+  display:flex;
+  gap:8px;
+}
+.cc-planPage .cc-monthPick select{
+  flex:1;
 }
 
 .cc-planField textarea.cc-input{
