@@ -403,6 +403,13 @@
   align-items:start;
   width:100%;
 }
+.cc-planPage .plan-grid .cc-input,
+.cc-planPage .plan-grid textarea,
+.cc-planPage .plan-grid select{
+  width:100%;
+  min-width:0;
+}
+
 .cc-planPage .plan-grid > :nth-child(2){
   justify-self:end;
 }
@@ -425,7 +432,9 @@
       "duration";
   }
   .cc-planPage .plan-grid > :nth-child(2){ justify-self:stretch; }
-  .cc-planPage .plan-grid > :nth-child(2) .cc-input{ max-width:none; }
+  .cc-planPage .plan-grid > :nth-child(2) .cc-input,
+  .cc-planPage .plan-grid > :nth-child(2) select{ max-width:none; }
+
 }
 
 /* Auth (shadcn-like) */
