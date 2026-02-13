@@ -261,6 +261,9 @@ function planStepMeta_(stepTxt, dl){
   const cls = filled === 0 ? "cc-planStepDot--empty" : (filled === 2 ? "cc-planStepDot--done" : "cc-planStepDot--partial");
   return { filled, total: 2, cls };
 }
+function planStepDotClass_(stepTxt, dl){
+  return planStepMeta_(stepTxt, dl).cls;
+}
 
 function planUpdateProgress_(plan){
   const p = plan || collectPlan_();
@@ -579,40 +582,27 @@ function planStepItemHtml_(s,i){
 
   return `
     <div class="cc-card cc-planStep" data-cc-acc>
+      <div class="cc-planStepHead" data-cc-acc-preview>
+        <div class="cc-planStepLeft">
+          ${dot}
+          <div class="cc-planStepTitle">Шаг ${i+1} ${count}</div>
+        </div>
 
-<div class="cc-planStepHead">
-  <div class="cc-planStepLeft">
-    ${dot}
-    <div class="cc-planStepTitle">Шаг ${i+1} ${count}</div>
-  </div>
+        <div class="cc-planSummary" aria-label="Резюме шага">
+          <div class="cc-planSumAch" data-cc-plan-ach>${ach}</div>
+          <div class="cc-planSumDl" data-cc-plan-deadline>${dlLbl}</div>
+          <div class="cc-planSumSt">
+            <span class="cc-planBadge ${stCls}" data-cc-plan-status>${stLbl}</span>
+          </div>
+        </div>
 
-  <div class="cc-planSummary" aria-label="Резюме шага">
-    <div class="cc-planSumAch" data-cc-plan-ach>${ach}</div>
-    <div class="cc-planSumDl" data-cc-plan-deadline>${dlLbl}</div>
-    <div class="cc-planSumSt">
-      <span class="cc-planBadge ${stCls}" data-cc-plan-status>${stLbl}</span>
-    </div>
-  </div>
-
-  <div class="cc-planStepRight">
-    <span class="cc-miniAcc-toggle" data-cc-acc-btn>Показать <span class="cc-miniAcc-chevron">▼</span></span>
-  </div>
-</div>
-
-  <div class="cc-planStepRight">
-    <span class="cc-miniAcc-toggle" data-cc-acc-btn>Показать <span class="cc-miniAcc-chevron">▼</span></span>
-  </div>
-</div>
-
-
-<div class="cc-planSummary" aria-label="Резюме шага">
-  <div class="cc-planSumAch" data-cc-plan-ach>${ach}</div>
-  <div class="cc-planSumDl" data-cc-plan-deadline>${dlLbl}</div>
-  <div class="cc-planSumSt">
-    <span class="cc-planBadge ${stCls}" data-cc-plan-status>${stLbl}</span>
-  </div>
-</div>
-
+        <div class="cc-planStepRight">
+          <button type="button" class="cc-planStepChevron" data-cc-acc-btn aria-expanded="false">
+            <span class="cc-visuallyHidden" data-cc-acc-text>Показать</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+        </div>
+      </div>
 
       <div class="cc-planFull" data-cc-acc-full style="display:none;">
         <div class="cc-planGrid cc-planGrid--top">
