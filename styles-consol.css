@@ -427,9 +427,8 @@
   .cc-planPage .plan-grid{
     grid-template-columns:1fr;
      grid-template-areas:
-      "project"
-      "goal"
-      "duration";
+      "project duration"
+      "goal goal"
   }
   .cc-planPage .plan-grid > :nth-child(2){ justify-self:stretch; }
   .cc-planPage .plan-grid > :nth-child(2) .cc-input,
@@ -2382,14 +2381,6 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
 .cc-planTopbarRight{
   gap: 12px;
 }
-
-/* "Добавить шаг" = secondary */
-.cc-planAddTop{
-  border: 1px solid rgba(4,61,86,0.18);
-  background: #fff;
-  color: #043D56;
-  font-weight: 800;
-}
 .cc-planAddTop:hover{
   background: rgba(4,61,86,0.04);
 }
@@ -2412,13 +2403,13 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
 
 /* Plan: Add-step button in topbar (secondary рядом с primary Save) */
 .cc-planAddTop{
-  padding: 8px 12px;
+  padding: 0px 14px;
   height:40px;
   display:inline-flex;
   align-items:center;
   justify-content:center;
   gap:8px;
-  border-radius: 12px;
+  border-radius: 10px;
   border: 1px solid rgba(4,61,86,0.16);
   background: #fff;
   color: #043D56;
