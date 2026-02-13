@@ -245,6 +245,14 @@ function planPillsHtml_(dl, st){
   const b = st ? `<span class="cc-pill cc-mini cc-planPill cc-planPill--status">${escapeHtml(st)}</span>` : ``;
   return a + b;
 }
+function planStatusBadgeClass_(st){
+  const s = String(st||"").trim().toLowerCase();
+  if(!s) return "cc-planBadge--empty";
+  if(s.includes("заверш")) return "cc-planBadge--done";
+  if(s.includes("пауз")) return "cc-planBadge--pause";
+  if(s.includes("работ") || s.includes("процесс")) return "cc-planBadge--work";
+  return "cc-planBadge--work";
+}
 
 function planStepMeta_(stepTxt, dl){
   const a = String(stepTxt||"").trim() ? 1 : 0;
@@ -369,15 +377,23 @@ function planSyncStepSummary_(target){
   const dl = normMonth_(dlEl ? dlEl.value : "");
   const st = stEl ? String(stEl.value||"").trim() : "";
 
-  if(t.dataset.k === "step"){
-    const previewEl = card.querySelector("[data-cc-acc-preview]");
-    if(previewEl){
-      const line = planFirstLine_(stepTxt);
-      previewEl.innerHTML = line ? escapeHtml(line) : `<span class="cc-planEmpty">Заполните “Достижение цели”</span>`;
-    }
-  }
-  const pills = card.querySelector("[data-cc-plan-pills]");
-  if(pills) pills.innerHTML = planPillsHtml_(dl, st);
+const achEl = card.querySelector("[data-cc-plan-ach]");
+if(achEl){
+  const line = planFirstLine_(stepTxt);
+  achEl.innerHTML = line ? escapeHtml(line) : `<span class="cc-planEmpty">Заполните достижение</span>`;
+}
+
+const dlEl2 = card.querySelector("[data-cc-plan-deadline]");
+if(dlEl2){
+  dlEl2.innerHTML = dl ? escapeHtml(planMonthLabel_(dl)) : `<span class="cc-planEmpty">Срок не выбран</span>`;
+}
+
+const stEl2 = card.querySelector("[data-cc-plan-status]");
+if(stEl2){
+  stEl2.textContent = st ? st : "Статус не выбран";
+  stEl2.className = "cc-planBadge " + planStatusBadgeClass_(st);
+}
+
   const meta = planStepMeta_(stepTxt, dl);
   const dot = card.querySelector(".cc-planStepDot");
   if(dot){
@@ -552,8 +568,10 @@ function planStepItemHtml_(s,i){
   const count = `<span class="cc-planStepCount">${meta.filled}/${meta.total}</span>`;
 
   const line = planFirstLine_(stepTxt);
-  const preview = line ? escapeHtml(line) : `<span class="cc-planEmpty">Заполните “Достижение цели”</span>`;
-  const pills = planPillsHtml_(dl, st);
+  const ach = line ? escapeHtml(line) : `<span class="cc-planEmpty">Заполните достижение</span>`;
+  const dlLbl = dl ? escapeHtml(planMonthLabel_(dl)) : `<span class="cc-planEmpty">Срок не выбран</span>`;
+  const stLbl = st ? escapeHtml(st) : `<span class="cc-planEmpty">Статус не выбран</span>`;
+  const stCls = planStatusBadgeClass_(st);
 
   const stOptions =
     `<option value=""></option>` +
@@ -567,16 +585,21 @@ function planStepItemHtml_(s,i){
       <div class="cc-planStepTitle">Шаг ${i+1}</div>
       ${count}
       </div>
-        <div class="cc-planStepRight">
-          <span class="cc-planPills" data-cc-plan-pills>${pills}</span>
-          <button class="cc-miniToggle" type="button" data-cc-acc-btn aria-expanded="false">
-            <span data-cc-acc-text>Показать</span>
-            <span class="cc-acc-chev">▾</span>
-          </button>
-        </div>
-      </div>
+     <div class="cc-planStepRight">
+  <button class="cc-miniToggle" type="button" data-cc-acc-btn aria-expanded="false">
+    <span data-cc-acc-text>Показать</span>
+    <span class="cc-acc-chev">▾</span>
+  </button>
+</div>
 
-      <div class="cc-planPreview" data-cc-acc-preview>${preview}</div>
+<div class="cc-planSummary" aria-label="Резюме шага">
+  <div class="cc-planSumAch" data-cc-plan-ach>${ach}</div>
+  <div class="cc-planSumDl" data-cc-plan-deadline>${dlLbl}</div>
+  <div class="cc-planSumSt">
+    <span class="cc-planBadge ${stCls}" data-cc-plan-status>${stLbl}</span>
+  </div>
+</div>
+
 
       <div class="cc-planFull" data-cc-acc-full style="display:none;">
         <div class="cc-planGrid cc-planGrid--top">
