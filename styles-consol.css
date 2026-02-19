@@ -2711,6 +2711,28 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
   grid-template-columns:repeat(2,1fr);
   gap:12px;
 }
+.cc-planGrid--core{
+  grid-template-columns:1.6fr 1fr;
+  grid-template-areas:
+    "ach ach"
+    "comment deadline"
+    "comment status";
+}
+.cc-planGrid--core .cc-planField--wide{ grid-area:ach; }
+.cc-planGrid--core .cc-planField--comment{ grid-area:comment; }
+.cc-planGrid--core .cc-planField--deadline{ grid-area:deadline; }
+.cc-planGrid--core .cc-planField--status{ grid-area:status; }
+
+@media (max-width: 900px){
+  .cc-planGrid--core{
+    grid-template-areas:
+      "ach"
+      "comment"
+      "deadline"
+      "status";
+  }
+}
+
 /* ===== Plan: master-step layout ===== */
 .cc-planReqHead{
   display:flex;
@@ -2812,7 +2834,9 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
 .cc-planField .cc-input{
   width:100%;
   min-width:0;
+  display:block;
 }
+
 .cc-planPage .cc-monthPick{
   display:flex;
   gap:8px;
