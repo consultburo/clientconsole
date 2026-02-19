@@ -287,8 +287,8 @@ const fill = document.getElementById("planProgressFill");
 const tx = document.getElementById("planProgressText");
 if (fill) fill.style.width = pct + "%";
 if (tx) tx.textContent = pct + "%";
-    return 0;
-  })();
+    return pct;
+ }
 
   const s = stepsArr[idx] || {};
   const miss = [];
