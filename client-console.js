@@ -783,6 +783,7 @@ function setActiveMonth_(grid, mo){
     setValue_(Number(ySel.value), Number(b.dataset.mo));
     close_();
   });
+ });
 }
 
 function planStepItemHtml_(s,i){
@@ -1018,7 +1019,7 @@ async function login_(){
   const client_id = normClientId_(document.getElementById("inClientId").value);
   const contact = String(document.getElementById("inContact").value||"").trim();
 
-  if(!client_id) return setAuthMsg_("Введите client_id.");
+  if(!client_id) return setAuthMsg_("Введите client id.");
   if(!contact) return setAuthMsg_("Введите телефон или email.");
 
   try{
