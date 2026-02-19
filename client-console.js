@@ -709,27 +709,26 @@ function planStepItemHtml_(s,i){
   <div class="cc-planReqHint">Чтобы шаг считался заполненным: укажите достижение, сроки и статус</div>
 </div>
 
-<div class="cc-planGrid cc-planGrid--top">
+<div class="cc-planGrid cc-planGrid--core">
   <div class="cc-planField cc-planField--wide">
     <div class="cc-planLabel">Достижение</div>
     <textarea class="cc-input" data-k="step" data-i="${i}" maxlength="800">${escapeHtml(stepTxt)}</textarea>
   </div>
 
-<div class="cc-planField cc-planField--deadline">
-  <div class="cc-planLabel">Сроки (месяц/год)</div>
-  <input ... data-k="deadline" ...>
-</div>
+  <div class="cc-planField cc-planField--comment">
+    <div class="cc-planLabel">Комментарий (опционально)</div>
+    <textarea class="cc-input cc-planNote" data-k="comments" data-i="${i}" maxlength="180" rows="2">${escapeHtml(String(s.comments||"").trim())}</textarea>
+  </div>
 
-<div class="cc-planField cc-planField--status">
-  <div class="cc-planLabel">Статус</div>
-  <select ... data-k="status" ...></select>
-</div>
+  <div class="cc-planField cc-planField--deadline">
+    <div class="cc-planLabel">Сроки (месяц/год)</div>
+    <input class="cc-input" type="month" data-k="deadline" data-i="${i}" value="${escapeHtml(dl)}">
+  </div>
 
-<div class="cc-planField cc-planField--comments">
-  <div class="cc-planLabel">Комментарий (опционально)</div>
-  <textarea ... data-k="comments" ...></textarea>
-</div>
-
+  <div class="cc-planField cc-planField--status">
+    <div class="cc-planLabel">Статус</div>
+    <select class="cc-input" data-k="status" data-i="${i}">${stOptions}</select>
+  </div>
 </div>
 
 <button type="button" class="cc-planOptToggle" data-cc-plan-opt-toggle="1" aria-expanded="false">
