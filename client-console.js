@@ -1029,11 +1029,6 @@ function fillPlan_(plan, updatedAt){
  * App logic
  * ====================== */
 async function bootstrap_(){
-  // steps rows сразу
-  renderStepsRows_([]);
-  ensurePlanUi_();
-  planSetBaselineFromDom_();
-
   document.getElementById("btnLogout").addEventListener("click", ()=>{
     S.clear();
     document.getElementById("appPane").classList.add("hidden");
