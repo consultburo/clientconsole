@@ -405,6 +405,7 @@
 }
 .cc-planPage .plan-grid .cc-input,
 .cc-planPage .plan-grid textarea,
+.cc-planPage .plan-grid textarea.cc-input{ min-height:70px; height:auto; }
 .cc-planPage .plan-grid select{
   width:100%;
   min-width:0;
@@ -2724,90 +2725,26 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
 .cc-planGrid--core .cc-planField--status{ grid-area:status; }
 
 @media (max-width: 900px){
+.cc-planGrid--core{
+  grid-template-columns:1.6fr 1fr;
+  grid-template-areas:
+    "ach deadline"
+    "ach status";
+}
+.cc-planGrid--core .cc-planField--wide{ grid-area:ach; display:flex; flex-direction:column; }
+.cc-planGrid--core .cc-planField--wide textarea{ flex:1; min-height:112px; }
+.cc-planGrid--core .cc-planField--deadline{ grid-area:deadline; }
+.cc-planGrid--core .cc-planField--status{ grid-area:status; }
+
+@media (max-width: 900px){
   .cc-planGrid--core{
+    grid-template-columns:1fr;
     grid-template-areas:
       "ach"
-      "comment"
       "deadline"
       "status";
   }
-}
-
-/* ===== Plan: master-step layout ===== */
-.cc-planReqHead{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:12px;
-  margin:6px 0 10px;
-}
-.cc-planReqTitle{
-  font-size:12px;
-  font-weight:800;
-  color:#043D56;
-}
-.cc-planReqHint{
-  font-size:12px;
-  color:#5e6b78;
-  flex:1;
-  max-width:none;
-  text-align:left;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-.cc-planField--wide{
-  grid-column:1 / -1;
-}
-.cc-planNote{
-  min-height:44px;
-  max-height:72px;
-}
-
-.cc-planOptToggle{
-  box-sizing:border-box;
-  max-width:100%;
-  margin-top:10px;
-  width:100%;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  border-radius:12px;
-  padding:10px 12px;
-  background:#fff;
-  border:1px dashed rgba(4,61,86,0.25);
-  color:#043D56;
-  font-size:13px;
-  font-weight:700;
-  cursor:pointer;
-}
-.cc-planOptToggle svg{ width:18px; height:18px; opacity:.75; }
-.cc-planOptBox{
-  margin-top:10px;
-  padding:10px 12px;
-  border-radius:12px;
-  background:#f6f8fa;
-  border:1px solid rgba(0,0,0,0.06);
-}
-.cc-planOptTitle{
-  font-size:12px;
-  font-weight:800;
-  color:#043D56;
-  opacity:.9;
-  margin-bottom:8px;
-}
-
-.cc-planActionHint{
-  margin-top:8px;
-  font-size:12px;
-  color:#043D56;
-  opacity:.9;
-}
-
-@media (max-width: 900px){
-  .cc-planGrid{ grid-template-columns:1fr; }
+  .cc-planGrid--core .cc-planField--wide textarea{ min-height:90px; }
 }
 
 .cc-planLabel{
