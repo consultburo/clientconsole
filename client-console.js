@@ -599,6 +599,9 @@ function planNeedMonthPickerFallback_(){
 }
 
 // --- replace old "2 selects" fallback block with this (inside planEnhanceMonthPickers_)
+function planEnhanceMonthPickers_(root){
+  if(!root) return;
+  if(!planNeedMonthPickerFallback_()) return;
 
 const doc = root && root.ownerDocument ? root.ownerDocument : document;
 
@@ -648,7 +651,9 @@ function setActiveMonth_(grid, mo){
 }
 
 // inside your existing loop: inputs.forEach((f)=>{ ... })
-{
+  const inputs = root.querySelectorAll('input[type="month"][data-k="deadline"]');
+  inputs.forEach((f)=>{
+
   // f is your <input type="month"> element
   // (this block assumes you're already iterating inputs as `f`)
   if (f.dataset.ccMyBound === "1") return;
