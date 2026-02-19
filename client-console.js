@@ -344,14 +344,10 @@ function planNormalizeLayout_(){
       const block = wrap ? wrap.parentElement : null; // это div style="margin-top:14px;"
       if(block){
         if(block.style && block.style.marginTop) block.style.marginTop = "0px";
-        const lbls = block.querySelectorAll(".cc-label, h1, h2, h3, h4, div, p, span");
-        for (const el of lbls){
-        const t = (el.textContent||"").replace(/\s+/g," ").trim();
-        if (t === "Шаги"){
-        el.remove();
-        break;
-        }
-      }
+               const first = block.firstElementChild;
+        const t = first ? (first.textContent||"").replace(/\s+/g," ").trim() : "";
+        if(first && /^Шаги\b/.test(t)) first.remove();
+
     }
   }
 }
