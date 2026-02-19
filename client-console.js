@@ -598,66 +598,185 @@ function planNeedMonthPickerFallback_(){
   return /firefox/i.test(navigator.userAgent || "");
 }
 
-function planEnhanceMonthPickers_(root){
-  if(!root || !planNeedMonthPickerFallback_()) return;
+// --- replace old "2 selects" fallback block with this (inside planEnhanceMonthPickers_)
 
-  const months = [
-    ["01","январь"],["02","февраль"],["03","март"],["04","апрель"],
-    ["05","май"],["06","июнь"],["07","июль"],["08","август"],
-    ["09","сентябрь"],["10","октябрь"],["11","ноябрь"],["12","декабрь"]
-  ];
+const doc = root && root.ownerDocument ? root.ownerDocument : document;
 
-  const nowY = (new Date()).getFullYear();
-  const yMin = nowY - 1;
-  const yMax = nowY + 10;
+// one-time outside click closer
+if (!doc.body.dataset.ccMyOutsideBound) {
+  doc.body.dataset.ccMyOutsideBound = "1";
+  doc.addEventListener("mousedown", (e) => {
+    const ow = doc.__ccMyOpenWrap;
+    if (!ow) return;
+    if (ow.contains(e.target)) return;
+    const op = ow.querySelector(".cc-myPop");
+    if (op) op.hidden = true;
+    ow.classList.remove("isOpen");
+    doc.__ccMyOpenWrap = null;
+  }, true);
+}
 
-  root.querySelectorAll('input[type="month"][data-k="deadline"]').forEach((inp)=>{
-    if(inp.dataset.ccMonthPick === "1") return;
-    inp.dataset.ccMonthPick = "1";
+const monthsShort = ["Янв","Фев","Мар","Апр","Май","Июн","Июл","Авг","Сен","Окт","Ноя","Дек"];
+const nowY = new Date().getFullYear();
 
-    const v = normMonth_(inp.value);
-    const y0 = v ? v.slice(0,4) : "";
-    const m0 = v ? v.slice(5,7) : "";
+function pad2_(n){ n = String(n); return n.length === 1 ? "0" + n : n; }
 
-    const wrap = document.createElement("div");
-    wrap.className = "cc-monthPick";
+function parseYM_(v){
+  v = normMonth_(String(v || ""));
+  const m = v.match(/^(\d{4})-(\d{2})$/);
+  if (!m) return null;
+  const yy = parseInt(m[1], 10);
+  const mo = parseInt(m[2], 10);
+  if (!yy || mo < 1 || mo > 12) return null;
+  return { yy, mo };
+}
 
-    const selM = document.createElement("select");
-    selM.className = "cc-input";
-    selM.setAttribute("aria-label","Месяц");
-    selM.innerHTML = `<option value=""></option>` + months.map(([mm,lab]) =>
-      `<option value="${mm}">${lab}</option>`
-    ).join("");
+function renderBtn_(btnText, yy, mo){
+  btnText.textContent = monthsShort[mo - 1] + " " + yy;
+  btnText.classList.remove("isPlaceholder");
+}
 
-    const selY = document.createElement("select");
-    selY.className = "cc-input";
-    selY.setAttribute("aria-label","Год");
-    let yHtml = `<option value=""></option>`;
-    for(let y=yMin; y<=yMax; y++) yHtml += `<option value="${y}">${y}</option>`;
-    selY.innerHTML = yHtml;
+function setPlaceholder_(btnText, grid){
+  btnText.textContent = "Месяц и год";
+  btnText.classList.add("isPlaceholder");
+  if (grid) [...grid.children].forEach(x => x.classList.remove("isActive"));
+}
 
-    if(m0) selM.value = m0;
-    if(y0) selY.value = y0;
+function setActiveMonth_(grid, mo){
+  if (!grid) return;
+  [...grid.children].forEach(x => x.classList.toggle("isActive", Number(x.dataset.mo) === mo));
+}
 
-    const commit = ()=>{
-      const yy = selY.value;
-      const mm = selM.value;
-      const next = (yy && mm) ? `${yy}-${mm}` : "";
-      if(inp.value === next) return;
-      inp.value = next;
-      inp.dispatchEvent(new Event("change",{bubbles:true}));
-    };
+// inside your existing loop: inputs.forEach((f)=>{ ... })
+{
+  // f is your <input type="month"> element
+  // (this block assumes you're already iterating inputs as `f`)
+  if (f.dataset.ccMyBound === "1") return;
+  f.dataset.ccMyBound = "1";
 
-    selM.addEventListener("change", commit);
-    selY.addEventListener("change", commit);
+  const parent = f.parentNode;
+  const wrap = document.createElement("div");
+  wrap.className = "cc-myWrap";
 
-    const field = inp.parentNode;
-    field.insertBefore(wrap, inp);
-    wrap.appendChild(selM);
-    wrap.appendChild(selY);
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "cc-myBtn";
 
-    inp.type = "hidden";
-    wrap.appendChild(inp);
+  const btnText = document.createElement("span");
+  btnText.className = "cc-myBtnText isPlaceholder";
+
+  const che = document.createElement("span");
+  che.className = "cc-myChevron";
+  che.textContent = "▾";
+
+  btn.appendChild(btnText);
+  btn.appendChild(che);
+
+  const pop = document.createElement("div");
+  pop.className = "cc-myPop";
+  pop.hidden = true;
+
+  const top = document.createElement("div");
+  top.className = "cc-myTop";
+
+  const ySel = document.createElement("select");
+  ySel.className = "cc-myYear";
+
+  for (let yy = nowY - 1; yy <= nowY + 10; yy++) {
+    const o = document.createElement("option");
+    o.value = String(yy);
+    o.textContent = String(yy);
+    ySel.appendChild(o);
+  }
+
+  const closeBtn = document.createElement("button");
+  closeBtn.type = "button";
+  closeBtn.className = "cc-myClose";
+  closeBtn.textContent = "Закрыть";
+
+  top.appendChild(ySel);
+  top.appendChild(closeBtn);
+
+  const grid = document.createElement("div");
+  grid.className = "cc-monthGrid";
+
+  for (let mo = 1; mo <= 12; mo++) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "cc-month";
+    b.dataset.mo = String(mo);
+    b.textContent = monthsShort[mo - 1];
+    grid.appendChild(b);
+  }
+
+  pop.appendChild(top);
+  pop.appendChild(grid);
+
+  // insert wrap before input, then move input inside wrap
+  parent.insertBefore(wrap, f);
+  wrap.appendChild(btn);
+  wrap.appendChild(pop);
+
+  f.type = "hidden";
+  wrap.appendChild(f);
+
+  function close_(){
+    pop.hidden = true;
+    wrap.classList.remove("isOpen");
+    if (doc.__ccMyOpenWrap === wrap) doc.__ccMyOpenWrap = null;
+  }
+
+  function open_(){
+    const ow = doc.__ccMyOpenWrap;
+    if (ow && ow !== wrap) {
+      const op = ow.querySelector(".cc-myPop");
+      if (op) op.hidden = true;
+      ow.classList.remove("isOpen");
+    }
+    doc.__ccMyOpenWrap = wrap;
+    pop.hidden = false;
+    wrap.classList.add("isOpen");
+  }
+
+  function setValue_(yy, mo){
+    f.value = yy + "-" + pad2_(mo);
+    renderBtn_(btnText, yy, mo);
+    setActiveMonth_(grid, mo);
+    f.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  // init from existing value
+  const init = parseYM_(f.value);
+  if (init) {
+    ySel.value = String(init.yy);
+    renderBtn_(btnText, init.yy, init.mo);
+    setActiveMonth_(grid, init.mo);
+  } else {
+    ySel.value = String(nowY);
+    setPlaceholder_(btnText, grid);
+  }
+
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+    pop.hidden ? open_() : close_();
+  });
+
+  closeBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    close_();
+  });
+
+  ySel.addEventListener("change", () => {
+    const cur = parseYM_(f.value);
+    if (cur) setValue_(Number(ySel.value), cur.mo);
+  });
+
+  grid.addEventListener("click", (e) => {
+    const b = e.target && e.target.closest ? e.target.closest(".cc-month") : null;
+    if (!b) return;
+    e.preventDefault();
+    setValue_(Number(ySel.value), Number(b.dataset.mo));
+    close_();
   });
 }
 
@@ -732,7 +851,7 @@ function planStepItemHtml_(s,i){
 </div>
 
 <button type="button" class="cc-planOptToggle" data-cc-plan-opt-toggle="1" aria-expanded="false">
-  Уточнить планирование (ресурсы, риски, поддержка)
+  Планирование (ресурсы, риски, поддержка)
   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
 </button>
 
