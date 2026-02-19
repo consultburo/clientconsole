@@ -398,11 +398,10 @@ function planEnsureParamsCard_(){
     if(!el) return null;
     const p = el.parentElement;
 
-    const prev = el.previousElementSibling;
-    if(prev && ((prev.classList && prev.classList.contains("cc-label")) || prev.tagName==="LABEL")) prev.remove();
-
-    const lbl = p && p.querySelector(":scope > .cc-label,:scope > label");
-    if(lbl) lbl.remove();
+      if(p){
+      const lbl = Array.from(p.children).find(x=>x!==el && (x.tagName==="LABEL" || (x.classList && x.classList.contains("cc-label"))));
+      if(lbl) lbl.remove();
+    }
 
     el.remove();
 
@@ -641,7 +640,6 @@ function ensurePlanUi_(){
       bar.appendChild(prog);
 
       page.insertBefore(bar, page.firstChild);
-      planNormalizeLayout_();
     }
   }
   planNormalizeLayout_();
