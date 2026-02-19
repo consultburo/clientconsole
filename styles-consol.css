@@ -427,6 +427,15 @@
   color:#6b7280;
   margin:0 0 10px;
 }
+.cc-planPage .cc-label{
+  display:block;
+  font-size:12px;
+  font-weight:600;
+  color:#043d56;
+  margin:0 0 6px;
+  text-decoration:none;
+}
+
 .cc-planParams textarea,
 .cc-planParams #plGoal{
   min-height:70px;
