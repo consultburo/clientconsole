@@ -288,18 +288,6 @@ const tx = document.getElementById("planProgressText");
 if (fill) fill.style.width = pct + "%";
 if (tx) tx.textContent = pct + "%";
     return pct;
- }
-
-  const s = stepsArr[idx] || {};
-  const miss = [];
-  if (!String(s.step || "").trim()) miss.push("заполните достижение");
-  if (!String(normMonth_(s.deadline || "")).trim()) miss.push("выберите срок");
-  if (!String(s.status || "").trim()) miss.push("выберите статус");
-
-  hint.textContent = miss.length
-    ? ("Чтобы завершить шаг " + (idx + 1) + ": " + miss.join(", ") + ".")
-    : ("Отлично: шаг " + (idx + 1) + " заполнен по ядру.");
-}
 }
 
 function planNormalizeLayout_(){
