@@ -342,29 +342,49 @@ function planNormalizeLayout_(){
     }
   }
 
-  // 2) Сплющиваем лишний вложенный контейнер вокруг шагов (если он реально вложен "карточкой в карточке")
-  const acc = document.getElementById("plStepsAcc");
-  if(!acc) return;
+  // 2) Параметры проекта: логическая секция без карточки/теней
+  const grid = page.querySelector(".plan-grid");
+  if(grid && !grid.closest(".cc-planParams")){
+    const wrap = document.createElement("div");
+    wrap.className = "cc-planParams";
 
-  const inner = acc.closest(".cc-card,.cc-panel,.cc-box");
-  if(!inner) return;
+    const title = document.createElement("div");
+    title.className = "cc-planParamsTitle";
+    title.textContent = "Параметры проекта";
 
-  // Если внутри другой оболочки такого же типа — считаем это "лишним контейнером"
-  const outer = inner.parentElement && inner.parentElement.closest(".cc-card,.cc-panel,.cc-box");
-  if(outer && outer !== inner){
-    inner.classList.add("cc-planFlatCard");
+    const hint = document.createElement("div");
+    hint.className = "cc-planParamsHint";
+    hint.textContent = "Сначала задайте параметры проекта — затем переходите к шагам.";
+
+    grid.parentNode.insertBefore(wrap, grid);
+    wrap.appendChild(title);
+    wrap.appendChild(hint);
+    wrap.appendChild(grid);
   }
-  // 3) Убираем лишний "Шаги" и inline margin-top у блока шагов (legacy разметка Tilda)
-  const tbody = document.getElementById("plStepsBody");
-  if(tbody){
-    const wrap = tbody.closest(".plan-table-wrap");
-    const block = wrap ? wrap.parentElement : null; // это div style="margin-top:14px;"
-    if(block){
-      if(block.style && block.style.marginTop) block.style.marginTop = "0px";
-      const lbls = block.querySelectorAll(".cc-label");
-      for(const el of lbls){
-        const t = (el.textContent||"").replace(/\s+/g," ").trim();
-        if(t === "Шаги"){ el.remove(); break; }
+
+  // 3) Сплющиваем лишний вложенный контейнер вокруг шагов (если он реально вложен "карточкой в карточке")
+  const acc = document.getElementById("plStepsAcc");
+  if(acc){
+    const inner = acc.closest(".cc-card,.cc-panel,.cc-box");
+    if(inner){
+      const outer = inner.parentElement && inner.parentElement.closest(".cc-card,.cc-panel,.cc-box");
+      if(outer && outer !== inner){
+        inner.classList.add("cc-planFlatCard");
+      }
+    }
+
+    // 4) Убираем лишний "Шаги" и inline margin-top у блока шагов (legacy разметка Tilda)
+    const tbody = document.getElementById("plStepsBody");
+    if(tbody){
+      const wrap = tbody.closest(".plan-table-wrap");
+      const block = wrap ? wrap.parentElement : null; // это div style="margin-top:14px;"
+      if(block){
+        if(block.style && block.style.marginTop) block.style.marginTop = "0px";
+        const lbls = block.querySelectorAll(".cc-label");
+        for(const el of lbls){
+          const t = (el.textContent||"").replace(/\s+/g," ").trim();
+          if(t === "Шаги"){ el.remove(); break; }
+        }
       }
     }
   }
@@ -451,6 +471,18 @@ function ensurePlanUi_(){
       `<option value=""></option>` +
       PLAN_DURATION_OPTS.map(x=>`<option value="${escapeHtml(x)}">${escapeHtml(x)}</option>`).join("");
     d.parentNode.replaceChild(sel, d);
+  }
+  // goal -> textarea (чтобы "Цель" была полноценным описанием)
+  const g = document.getElementById("plGoal");
+  if(g && g.tagName !== "TEXTAREA"){
+    const ta = document.createElement("textarea");
+    ta.id = g.id;
+    ta.className = g.className || "cc-input";
+    ta.name = g.name || "";
+    ta.value = g.value || "";
+    ta.setAttribute("aria-label", g.getAttribute("aria-label") || "Цель");
+    ta.rows = 3;
+    g.parentNode.replaceChild(ta, g);
   }
 
   // прячем старую таблицу и создаём контейнер под аккордеоны
