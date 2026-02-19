@@ -645,6 +645,7 @@ function ensurePlanUi_(){
     }
   }
   planNormalizeLayout_();
+  planEnsureParamsCard_();
 
   // dirty binding (anti-spam: save кнопка уже блокируется через PLAN_SAVING)
   if(page && page.dataset.planBound !== "1"){
