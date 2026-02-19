@@ -355,7 +355,7 @@ function planNormalizeLayout_(){
     }
   }
 }
-
+}
 function planSetUpdatedAt_(whenStr){
   const el = document.getElementById("planUpdatedInline");
   if(el) el.textContent = whenStr ? ("Обновлено: " + whenStr) : "";
