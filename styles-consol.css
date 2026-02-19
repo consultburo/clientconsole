@@ -2352,19 +2352,12 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
   position:relative;
   top:auto;
   z-index:6;
-
   display:flex;
   flex-direction:column;
   gap:10px;
-
-  padding:12px 14px;
-  border-radius:16px;
-  background:rgba(255,255,255,0.92);
-  border:1px solid rgba(0,0,0,0.06);
-  box-shadow:0 14px 34px rgba(4,61,86,0.10);
-  backdrop-filter:blur(6px);
-
-  margin-bottom:14px;
+  padding:0 0 12px;
+  margin-bottom:12px;
+  border-bottom:1px solid rgba(4,61,86,0.10);
 }
 .cc-planTopbarRow{
   display:flex;
