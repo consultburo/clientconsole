@@ -369,6 +369,74 @@ function planNormalizeLayout_(){
     }
   }
 }
+function planEnsureParamsCard_(){
+  const page = document.getElementById("planShell") || document.getElementById("pagePlan");
+  if(!page || document.getElementById("planParamsCard")) return;
+
+  const pr = document.getElementById("plProject");
+  const du = document.getElementById("plDuration");
+  let go = document.getElementById("plGoal");
+  if(!pr || !du || !go) return;
+
+  // goal -> textarea (2 строки)
+  if(go.tagName !== "TEXTAREA"){
+    const ta = document.createElement("textarea");
+    ta.id = go.id;
+    ta.className = go.className || "cc-input";
+    ta.name = go.name || "";
+    ta.value = go.value || "";
+    ta.rows = 2;
+    ta.maxLength = go.maxLength || 800;
+    ta.setAttribute("aria-label", go.getAttribute("aria-label") || "Цель");
+    go.parentNode.replaceChild(ta, go);
+    go = ta;
+  }else{
+    if(!go.rows) go.rows = 2;
+  }
+
+  const take = (el)=>{
+    if(!el) return null;
+    const p = el.parentElement;
+
+    const prev = el.previousElementSibling;
+    if(prev && ((prev.classList && prev.classList.contains("cc-label")) || prev.tagName==="LABEL")) prev.remove();
+
+    const lbl = p && p.querySelector(":scope > .cc-label,:scope > label");
+    if(lbl) lbl.remove();
+
+    el.remove();
+
+    if(p){
+      const has = Array.from(p.childNodes).some(n => n.nodeType===1 || (n.nodeType===3 && n.textContent.trim()));
+      if(!has) p.remove();
+    }
+    return el;
+  };
+
+  const card = document.createElement("div");
+  card.id = "planParamsCard";
+  card.className = "cc-card cc-miniCard";
+  card.innerHTML =
+    `<div class="cc-miniTitle">Параметры проекта</div>
+     <div class="cc-miniLine">Сначала заполните параметры проекта — затем шаги.</div>
+     <div class="plan-grid"></div>`;
+
+  const topbar = document.getElementById("planTopbar");
+  if(topbar) topbar.insertAdjacentElement("afterend", card);
+  else page.insertBefore(card, page.firstChild);
+
+  const grid = card.querySelector(".plan-grid");
+  const field = (lbl, ctrl)=>{
+    const w = document.createElement("div");
+    w.innerHTML = `<div class="cc-planLabel">${lbl}</div>`;
+    w.appendChild(ctrl);
+    return w;
+  };
+
+  grid.appendChild(field("Название проекта", take(pr)));
+  grid.appendChild(field("Длительность", take(du)));
+  grid.appendChild(field("Цель", take(go)));
+}
 
 function planSetUpdatedAt_(whenStr){
   const el = document.getElementById("planUpdatedInline");
@@ -838,11 +906,6 @@ function planStepItemHtml_(s,i){
   <div class="cc-planField cc-planField--wide">
     <div class="cc-planLabel">Достижение</div>
     <textarea class="cc-input" data-k="step" data-i="${i}" maxlength="800">${escapeHtml(stepTxt)}</textarea>
-  </div>
-
-  <div class="cc-planField cc-planField--comment">
-    <div class="cc-planLabel">Комментарий (опционально)</div>
-    <textarea class="cc-input cc-planNote" data-k="comments" data-i="${i}" maxlength="180" rows="2">${escapeHtml(String(s.comments||"").trim())}</textarea>
   </div>
 
   <div class="cc-planField cc-planField--deadline">
