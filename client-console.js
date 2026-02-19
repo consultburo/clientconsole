@@ -255,15 +255,17 @@ function planStatusBadgeClass_(st){
   return "cc-planBadge--work";
 }
 
-function planStepMeta_(stepTxt, dl){
+function planStepMeta_(stepTxt, dl, st){
   const a = String(stepTxt||"").trim() ? 1 : 0;
   const b = String(dl||"").trim() ? 1 : 0;
-  const filled = a + b;
-  const cls = filled === 0 ? "cc-planStepDot--empty" : (filled === 2 ? "cc-planStepDot--done" : "cc-planStepDot--partial");
-  return { filled, total: 2, cls };
+  const c = String(st||"").trim() ? 1 : 0;
+
+  const filled = a + b + c;
+  const cls = filled === 0 ? "cc-planStepDot--empty" : (filled === 3 ? "cc-planStepDot--done" : "cc-planStepDot--partial");
+  return { filled, total: 3, cls };
 }
-function planStepDotClass_(stepTxt, dl){
-  return planStepMeta_(stepTxt, dl).cls;
+function planStepDotClass_(stepTxt, dl, st){
+  return planStepMeta_(stepTxt, dl, st).cls;
 }
 
 function planUpdateProgress_(plan){
@@ -274,25 +276,54 @@ function planUpdateProgress_(plan){
     (String(p.project_name||"").trim() ? 1 : 0) +
     (String(p.goal||"").trim() ? 1 : 0);
 
-  const stepsArr = Array.isArray(p.steps) ? p.steps : [];
+    const stepsArr = Array.isArray(p.steps) ? p.steps : [];
   const stepsTotal = stepsArr.length; // считаем каждый шаг
-  let stepsFilled = 0;
-  for(let i=0;i<stepsArr.length;i++){
-    if(String(stepsArr[i]?.step||"").trim()) stepsFilled += 1; // минимум: “Достижение цели”
+  let stepsDone = 0;
+
+  for (let i = 0; i < stepsArr.length; i++) {
+    const s = stepsArr[i] || {};
+    const st = String(s.status || "").trim();
+    const meta = planStepMeta_(s.step || "", normMonth_(s.deadline || ""), st);
+    if (meta.filled === meta.total) stepsDone += 1;
   }
 
   const total = baseTotal + stepsTotal;
-  const filled = baseFilled + stepsFilled;
+  const filled = baseFilled + stepsDone;
   const pct = total ? Math.round((filled / total) * 100) : 0;
 
   const fill = document.getElementById("planProgressFill");
   const tx = document.getElementById("planProgressText");
   if(fill) fill.style.width = pct + "%";
   if(tx) tx.textContent = pct + "%";
+
   const k1 = document.getElementById("planKpiFilled");
   if(k1) k1.textContent = `${filled}/${total}`;
+
   const k2 = document.getElementById("planKpiSteps");
-  if(k2) k2.textContent = `${stepsFilled}/${stepsTotal}`;
+  if(k2) k2.textContent = `${stepsDone}/${stepsTotal}`;
+
+const hint = document.getElementById("planActionHint");
+if (hint) {
+  const idx = (typeof PLAN_OPEN_STEP_IDX === "number" && PLAN_OPEN_STEP_IDX >= 0) ? PLAN_OPEN_STEP_IDX : (() => {
+    for (let i = 0; i < stepsArr.length; i++) {
+      const s = stepsArr[i] || {};
+      const st = String(s.status || "").trim();
+      const meta = planStepMeta_(s.step || "", normMonth_(s.deadline || ""), st);
+      if (meta.filled !== meta.total) return i;
+    }
+    return 0;
+  })();
+
+  const s = stepsArr[idx] || {};
+  const miss = [];
+  if (!String(s.step || "").trim()) miss.push("заполните достижение");
+  if (!String(normMonth_(s.deadline || "")).trim()) miss.push("выберите срок");
+  if (!String(s.status || "").trim()) miss.push("выберите статус");
+
+  hint.textContent = miss.length
+    ? ("Чтобы завершить шаг " + (idx + 1) + ": " + miss.join(", ") + ".")
+    : ("Отлично: шаг " + (idx + 1) + " заполнен по ядру.");
+}
 }
 
 function planNormalizeLayout_(){
@@ -398,7 +429,7 @@ if(stEl2){
   stEl2.className = "cc-planBadge " + planStatusBadgeClass_(st);
 }
 
-  const meta = planStepMeta_(stepTxt, dl);
+  const meta = planStepMeta_(stepTxt, dl, st);
   const dot = card.querySelector(".cc-planStepDot");
   if(dot){
     dot.classList.remove("cc-planStepDot--empty","cc-planStepDot--partial","cc-planStepDot--done");
@@ -533,6 +564,7 @@ function ensurePlanUi_(){
           <span class="cc-planKpiSep"></span>
           <span class="cc-planKpi"><span class="cc-planKpiLbl">Шаги</span> <span id="planKpiSteps" class="cc-planKpiVal">0/0</span></span>
         </div>
+        <div id="planActionHint" class="cc-planActionHint"></div>
         <div id="planProgressText" class="cc-planProgressText">0%</div>
       `;
 
@@ -633,7 +665,7 @@ function planStepItemHtml_(s,i){
   const stepTxt = String(s.step||"").trim();
   const dl = normMonth_(s.deadline||"");
   const st = String(s.status||"").trim();
-  const meta = planStepMeta_(stepTxt, dl);
+  const meta = planStepMeta_(stepTxt, dl, st);
   const dot = `<span class="cc-planStepDot ${meta.cls}" aria-hidden="true"></span>`;
   const count = `<span class="cc-planStepCount">${meta.filled}/${meta.total}</span>`;
 
@@ -672,25 +704,40 @@ function planStepItemHtml_(s,i){
       </div>
 
       <div class="cc-planFull" data-cc-acc-full style="display:none;">
-        <div class="cc-planGrid cc-planGrid--top">
-          <div class="cc-planField">
-            <div class="cc-planLabel">Достижение цели</div>
-            <textarea class="cc-input" data-k="step" data-i="${i}" maxlength="800">${escapeHtml(stepTxt)}</textarea>
-          </div>
-          <div class="cc-planField">
-            <div class="cc-planLabel">Сроки (месяц/год)</div>
-            <input class="cc-input" type="month" data-k="deadline" data-i="${i}" value="${escapeHtml(dl)}">
-          </div>
-          <div class="cc-planField">
-                  <div class="cc-planField">
-            <div class="cc-planLabel">Комментарии</div>
-            <textarea class="cc-input" data-k="comments" data-i="${i}" maxlength="600">${escapeHtml(String(s.comments||"").trim())}</textarea>
-          </div>
-          <div class="cc-planField">
-            <div class="cc-planLabel">Статус</div>
-            <select class="cc-input" data-k="status" data-i="${i}">${stOptions}</select>
-          </div>
-        </div>
+   <div class="cc-planReqHead">
+  <div class="cc-planReqTitle">Обязательное (ядро шага)</div>
+  <div class="cc-planReqHint">Чтобы шаг считался заполненным: укажите достижение, сроки и статус</div>
+</div>
+
+<div class="cc-planGrid cc-planGrid--top">
+  <div class="cc-planField cc-planField--wide">
+    <div class="cc-planLabel">Достижение</div>
+    <textarea class="cc-input" data-k="step" data-i="${i}" maxlength="800">${escapeHtml(stepTxt)}</textarea>
+  </div>
+
+  <div class="cc-planField">
+    <div class="cc-planLabel">Сроки (месяц/год)</div>
+    <input class="cc-input" type="month" data-k="deadline" data-i="${i}" value="${escapeHtml(dl)}">
+  </div>
+
+  <div class="cc-planField">
+    <div class="cc-planLabel">Статус</div>
+    <select class="cc-input" data-k="status" data-i="${i}">${stOptions}</select>
+  </div>
+
+  <div class="cc-planField">
+    <div class="cc-planLabel">Комментарий (опционально)</div>
+    <textarea class="cc-input cc-planNote" data-k="comments" data-i="${i}" maxlength="180" rows="2">${escapeHtml(String(s.comments||"").trim())}</textarea>
+  </div>
+</div>
+
+<button type="button" class="cc-planOptToggle" data-cc-plan-opt-toggle="1" aria-expanded="false">
+  Уточнить планирование (ресурсы, риски, поддержка)
+  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+</button>
+
+<div class="cc-planOptBox" data-cc-plan-opt-box style="display:none;">
+  <div class="cc-planOptTitle">Планирование (опционально)</div>
 
         <div class="cc-planGrid cc-planGrid--bottom">
           <div class="cc-planField">
@@ -735,6 +782,7 @@ function renderStepsRows_(steps, openIndex){
 
   // биндим аккордеон как в других блоках
   bindMiniAccordion_(acc);
+  bindPlanOptToggles_(acc);
 
   // авто-раскрыть новый шаг
   if(openIndex != null){
@@ -1032,6 +1080,16 @@ function bindMiniAccordion_(root){
     const isOpen = btn.getAttribute("aria-expanded") === "true";
     const nextOpen = !isOpen;
     const isPlanStep = wrap.classList.contains("cc-planStep");
+    
+    if(isPlanStep){
+      const acc = wrap.closest("#plStepsAcc");
+      if(acc){
+        const btns = acc.querySelectorAll(".cc-planStep [data-cc-acc-btn]");
+        PLAN_OPEN_STEP_IDX = Array.prototype.indexOf.call(btns, btn);
+      }
+      if(!nextOpen) PLAN_OPEN_STEP_IDX = -1;
+      planUpdateProgress_();
+    }
 
     btn.setAttribute("aria-expanded", nextOpen ? "true" : "false");
     wrap.classList.toggle("cc-acc-open", nextOpen);
@@ -1044,6 +1102,28 @@ function bindMiniAccordion_(root){
     const t = (!isPlanStep) ? btn.querySelector("[data-cc-acc-text]") : null;
     if(t) t.textContent = nextOpen ? "Скрыть" : "Показать";
     else if(!isPlanStep) btn.textContent = nextOpen ? "Скрыть" : "Показать";
+  });
+}
+function bindPlanOptToggles_(root){
+  if(!root || root.dataset.planOptBound === "1") return;
+  root.dataset.planOptBound = "1";
+
+  root.addEventListener("click", (e) => {
+    const btn = e.target && e.target.closest ? e.target.closest("[data-cc-plan-opt-toggle]") : null;
+    if(!btn) return;
+
+    const card = btn.closest(".cc-planStep");
+    if(!card) return;
+
+    const box = card.querySelector("[data-cc-plan-opt-box]");
+    if(!box) return;
+
+    const isOpen = btn.getAttribute("aria-expanded") === "true";
+    const next = !isOpen;
+
+    btn.setAttribute("aria-expanded", next ? "true" : "false");
+    box.style.display = next ? "block" : "none";
+    card.classList.toggle("cc-planOptOpen", next);
   });
 }
 
