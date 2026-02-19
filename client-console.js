@@ -271,46 +271,22 @@ function planStepDotClass_(stepTxt, dl, st){
 function planUpdateProgress_(plan){
   const p = plan || collectPlan_();
 
-  const baseTotal = 2; // Название проекта + Цель
-  const baseFilled =
-    (String(p.project_name||"").trim() ? 1 : 0) +
-    (String(p.goal||"").trim() ? 1 : 0);
+  const stepsArr = Array.isArray(p.steps) ? p.steps : [];
+const stepsTotal = stepsArr.length;
 
-    const stepsArr = Array.isArray(p.steps) ? p.steps : [];
-  const stepsTotal = stepsArr.length; // считаем каждый шаг
-  let stepsDone = 0;
+let stepsDone = 0;
+for (let i = 0; i < stepsArr.length; i++) {
+  const s = stepsArr[i] || {};
+  const st = String(s.status || "").trim();
+  if (st === "Завершено") stepsDone += 1;
+}
 
-  for (let i = 0; i < stepsArr.length; i++) {
-    const s = stepsArr[i] || {};
-    const st = String(s.status || "").trim();
-    const meta = planStepMeta_(s.step || "", normMonth_(s.deadline || ""), st);
-    if (meta.filled === meta.total) stepsDone += 1;
-  }
+const pct = stepsTotal ? Math.round((stepsDone / stepsTotal) * 100) : 0;
 
-  const total = baseTotal + stepsTotal;
-  const filled = baseFilled + stepsDone;
-  const pct = total ? Math.round((filled / total) * 100) : 0;
-
-  const fill = document.getElementById("planProgressFill");
-  const tx = document.getElementById("planProgressText");
-  if(fill) fill.style.width = pct + "%";
-  if(tx) tx.textContent = pct + "%";
-
-  const k1 = document.getElementById("planKpiFilled");
-  if(k1) k1.textContent = `${filled}/${total}`;
-
-  const k2 = document.getElementById("planKpiSteps");
-  if(k2) k2.textContent = `${stepsDone}/${stepsTotal}`;
-
-const hint = document.getElementById("planActionHint");
-if (hint) {
-  const idx = (typeof PLAN_OPEN_STEP_IDX === "number" && PLAN_OPEN_STEP_IDX >= 0) ? PLAN_OPEN_STEP_IDX : (() => {
-    for (let i = 0; i < stepsArr.length; i++) {
-      const s = stepsArr[i] || {};
-      const st = String(s.status || "").trim();
-      const meta = planStepMeta_(s.step || "", normMonth_(s.deadline || ""), st);
-      if (meta.filled !== meta.total) return i;
-    }
+const fill = document.getElementById("planProgressFill");
+const tx = document.getElementById("planProgressText");
+if (fill) fill.style.width = pct + "%";
+if (tx) tx.textContent = pct + "%";
     return 0;
   })();
 
@@ -380,10 +356,12 @@ function planNormalizeLayout_(){
       const block = wrap ? wrap.parentElement : null; // это div style="margin-top:14px;"
       if(block){
         if(block.style && block.style.marginTop) block.style.marginTop = "0px";
-        const lbls = block.querySelectorAll(".cc-label");
-        for(const el of lbls){
-          const t = (el.textContent||"").replace(/\s+/g," ").trim();
-          if(t === "Шаги"){ el.remove(); break; }
+        const lbls = block.querySelectorAll(".cc-label, h1, h2, h3, h4, div, p, span");
+        for (const el of lbls){
+        const t = (el.textContent||"").replace(/\s+/g," ").trim();
+        if (t === "Шаги"){
+        el.remove();
+        break;
         }
       }
     }
@@ -591,13 +569,7 @@ function ensurePlanUi_(){
       prog.className = "cc-planProgress";
             prog.innerHTML = `
         <div class="cc-planProgressBar"><div id="planProgressFill" class="cc-planProgressFill" style="width:0%"></div></div>
-        <div class="cc-planKpis">
-          <span class="cc-planKpi"><span class="cc-planKpiLbl">Заполнено</span> <span id="planKpiFilled" class="cc-planKpiVal">0/0</span></span>
-          <span class="cc-planKpiSep"></span>
-          <span class="cc-planKpi"><span class="cc-planKpiLbl">Шаги</span> <span id="planKpiSteps" class="cc-planKpiVal">0/0</span></span>
-        </div>
-        <div id="planActionHint" class="cc-planActionHint"></div>
-        <div id="planProgressText" class="cc-planProgressText">0%</div>
+     <div id="planProgressText" class="cc-planProgressText">0%</div>
       `;
 
 
