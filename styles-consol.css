@@ -2762,7 +2762,6 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
   grid-column:1 / -1;
 }
 /* PLAN: top core layout — comment left, deadline+status right */
-.cc-planGrid--top{grid-template-columns:1.4fr 1fr;}
 .cc-planField--comments{grid-column:1;grid-row:2 / 4;}
 .cc-planField--deadline{grid-column:2;grid-row:2;}
 .cc-planField--status{grid-column:2;grid-row:3;}
@@ -2770,7 +2769,6 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
 /* mobile: back to normal flow */
 @media (max-width:900px){
   .cc-planGrid--top{grid-template-columns:1fr;}
-  .cc-planField--comments,.cc-planField--deadline,.cc-planField--status{grid-column:auto;grid-row:auto;}
 }
 
 .cc-planNote{
@@ -2832,8 +2830,10 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
 }
 
 .cc-planField .cc-input{
-  width:100%;
-  min-width:0;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100%;
+  box-sizing:border-box;
   display:block;
 }
 
@@ -2845,8 +2845,4 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
   flex:1;
 }
 
-.cc-planField textarea.cc-input{
-  height:auto;
-  min-height:70px;
-  padding:10px 12px;
-}
+.cc-planField textarea.cc-input:not(.cc-planNote){ min-height:70px; }
