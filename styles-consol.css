@@ -440,7 +440,31 @@
 .cc-planParams #plGoal{
   min-height:70px;
 }
+/* ===== Step layout fix ===== */
 
+.cc-planPage .cc-stepGrid{
+  display:grid;
+  grid-template-columns: 1fr 280px;
+  gap:14px;
+  align-items:stretch;
+}
+
+.cc-planPage .cc-stepLeft textarea{
+  min-height:120px;   /* высота = сроки + статус */
+  resize:vertical;
+}
+
+.cc-planPage .cc-stepRight{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
+@media (max-width:900px){
+  .cc-planPage .cc-stepGrid{
+    grid-template-columns:1fr;
+  }
+}
 .cc-planPage .plan-grid > :nth-child(1){ grid-area:project; }
 .cc-planPage .plan-grid > :nth-child(2){ grid-area:duration; }
 .cc-planPage .plan-grid > :nth-child(3){ grid-area:goal; }
