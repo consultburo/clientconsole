@@ -2438,6 +2438,7 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
   ox-sizing:border-box;
   border-radius:10px;
   line-height:1;
+  box-sizing:border-box;
 }
 .cc-planPage #btnSavePlan:hover{
   filter: brightness(0.97);
@@ -2873,8 +2874,8 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
 
 .cc-myBtn{
   width:100%;
-  height:40px;
-  padding:0 12px;
+  height:34px;
+  padding:0 10px;
   border:1px solid rgba(4,61,86,.18);
   border-radius:12px;
   background:#fff;
@@ -2884,6 +2885,12 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
   gap:10px;
   box-sizing:border-box;
   cursor:pointer;
+}
+/* Plan core: make Status same height as Month/Year */
+.cc-planField--status select.cc-input{
+  height:34px;
+  padding:0 10px;
+  box-sizing:border-box;
 }
 .cc-planField--deadline .cc-myBtn{ height:40px; }
 .cc-planField--status select.cc-input{ height:40px; padding:0 12px; }
@@ -2968,3 +2975,5 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
 }
 
 .cc-planField textarea.cc-input:not(.cc-planNote){ min-height:70px; }
+/* core: achievement textarea tuned to match (deadline + status) */
+.cc-planPage .cc-planGrid--core textarea.cc-input[data-k="step"]{ min-height:92px; }
