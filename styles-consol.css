@@ -2413,7 +2413,7 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
 }
 .cc-planTopbarRight{
   display:flex;
-  align-items:center;
+  align-items:stretch;
   gap:10px;
   flex-shrink:0;
 }
@@ -2435,6 +2435,9 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
   display:inline-flex;
   align-items:center;
   justify-content:center;
+  ox-sizing:border-box;
+  border-radius:10px;
+  line-height:1;
 }
 .cc-planPage #btnSavePlan:hover{
   filter: brightness(0.97);
@@ -2875,7 +2878,6 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
   border:1px solid rgba(4,61,86,.18);
   border-radius:12px;
   background:#fff;
-
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -2883,6 +2885,8 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
   box-sizing:border-box;
   cursor:pointer;
 }
+.cc-planField--deadline .cc-myBtn{ height:40px; }
+.cc-planField--status select.cc-input{ height:40px; padding:0 12px; }
 
 .cc-myBtnText{ font-size:14px; color:#043D56; }
 .cc-myBtnText.isPlaceholder{ color:rgba(4,61,86,.45); }
