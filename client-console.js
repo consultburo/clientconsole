@@ -823,24 +823,24 @@ function planStepItemHtml_(s,i){
 </div>
 
 <div class="cc-planGrid cc-planGrid--core">
-  <div class="cc-planField cc-planField--wide">
-    <div class="cc-planLabel">Достижение</div>
-    <textarea class="cc-input" data-k="step" data-i="${i}" maxlength="800">${escapeHtml(stepTxt)}</textarea>
-  </div>
 
-  <div class="cc-planField cc-planField--comment">
-    <div class="cc-planLabel">Комментарий (опционально)</div>
-    <textarea class="cc-input cc-planNote" data-k="comments" data-i="${i}" maxlength="180" rows="2">${escapeHtml(String(s.comments||"").trim())}</textarea>
+  <div class="cc-planCoreLeft">
+    <div class="cc-planField cc-planField--wide">
+      <div class="cc-planLabel">Достижение</div>
+      <textarea class="cc-input" data-k="step" data-i="${i}" maxlength="800">${escapeHtml(stepTxt)}</textarea>
+    </div>
   </div>
+  <div class="cc-planCoreRight">
 
-  <div class="cc-planField cc-planField--deadline">
-    <div class="cc-planLabel">Сроки (месяц/год)</div>
-    <input class="cc-input" type="month" data-k="deadline" data-i="${i}" value="${escapeHtml(dl)}">
-  </div>
+    <div class="cc-planField cc-planField--deadline">
+      <div class="cc-planLabel">Сроки (месяц/год)</div>
+      <input class="cc-input" type="month" data-k="deadline" data-i="${i}" value="${escapeHtml(dl)}">
+    </div>
 
-  <div class="cc-planField cc-planField--status">
-    <div class="cc-planLabel">Статус</div>
-    <select class="cc-input" data-k="status" data-i="${i}">${stOptions}</select>
+    <div class="cc-planField cc-planField--status">
+      <div class="cc-planLabel">Статус</div>
+      <select class="cc-input" data-k="status" data-i="${i}">${stOptions}</select>
+    </div>
   </div>
 </div>
 
@@ -928,7 +928,6 @@ function collectPlan_(){
       step: get("step"),
       deadline: normMonth_(get("deadline")),
       status: get("status"),
-      comments: get("comments"),
       resources: get("resources"),
       support: get("support"),
       obstacles: get("obstacles"),
