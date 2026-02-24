@@ -2421,10 +2421,6 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
 .cc-planTopbarRight{
   gap: 12px;
 }
-.cc-planAddTop:hover{
-  background: rgba(4,61,86,0.04);
-}
-
 /* "Сохранить" = primary (только на странице плана) */
 .cc-planPage #btnSavePlan{
   background: #043D56;
@@ -2442,27 +2438,6 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
 }
 .cc-planPage #btnSavePlan:hover{
   filter: brightness(0.97);
-}
-
-
-/* Plan: Add-step button in topbar (secondary рядом с primary Save) */
-.cc-planAddTop{
-  padding: 0px 14px;
-  height:40px;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  border-radius: 10px;
-  border: 1px solid rgba(4,61,86,0.16);
-  background: #fff;
-  color: #043D56;
-  font-weight: 800;
-  box-shadow: none;
-  box-sizing:border-box;
-}
-.cc-planAddTop:hover{
-  background: rgba(4,61,86,0.04);
 }
 
 .cc-planUpdated{
@@ -2756,25 +2731,37 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
   gap:12px;
 }
 .cc-planGrid--core{
-  grid-template-columns:1.6fr 1fr;
-  grid-template-areas:
-    "ach ach"
-    "comment deadline"
-    "comment status";
+  grid-template-columns: 1.6fr 1fr;
+  gap:12px;
+  align-items:end;
 }
-.cc-planGrid--core .cc-planField--wide{ grid-area:ach; }
-.cc-planGrid--core .cc-planField--comment{ grid-area:comment; }
-.cc-planGrid--core .cc-planField--deadline{ grid-area:deadline; }
-.cc-planGrid--core .cc-planField--status{ grid-area:status; }
+
+.cc-planCoreLeft{ min-width:0; }
+
+.cc-planCoreRight{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+  align-items:end;
+}
+
+.cc-planCoreRight .cc-input,
+.cc-planCoreRight .cc-myBtn{
+  background:#fff;
+  height:52px;
+  box-sizing:border-box;
+}
+
+.cc-planPage .cc-planGrid--core textarea.cc-input[data-k="step"]{
+  height:52px;
+  min-height:52px;
+  max-height:52px;
+  resize:none;
+}
 
 @media (max-width: 900px){
-  .cc-planGrid--core{
-    grid-template-areas:
-      "ach"
-      "comment"
-      "deadline"
-      "status";
-  }
+  .cc-planGrid--core{ grid-template-columns:1fr; }
+  .cc-planCoreRight{ grid-template-columns:1fr; }
 }
 
 /* ===== Plan: master-step layout ===== */
@@ -2834,6 +2821,48 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
   border-radius:12px;
   background:#f6f8fa;
   border:1px solid rgba(0,0,0,0.06);
+}
+.cc-planStepActions{
+  margin-top:12px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.cc-planStepBtn{
+  width:100%;
+  height:44px;
+  border-radius:12px;
+  border:1px solid rgba(4,61,86,0.16);
+  background:#fff;
+  color:#043D56;
+  font-weight:800;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  cursor:pointer;
+  box-sizing:border-box;
+}
+
+.cc-planStepBtn svg{ width:16px; height:16px; }
+
+.cc-planStepBtn--add:hover{
+  background: rgba(4,61,86,0.04);
+}
+
+.cc-planStepBtn--del{
+  border-color: rgba(180,35,42,0.35);
+  color:#b4232a;
+}
+
+.cc-planStepBtn--del:hover{
+  background: rgba(180,35,42,0.06);
+}
+
+.cc-planStepBtn:disabled{
+  opacity:.45;
+  cursor:not-allowed;
 }
 .cc-planOptTitle{
   font-size:12px;
@@ -2974,6 +3003,5 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
   .cc-myPop{ width:100%; }
 }
 
-.cc-planField textarea.cc-input:not(.cc-planNote){ min-height:70px; }
+.cc-planOptBox textarea.cc-input{ min-height:70px; }
 /* core: achievement textarea tuned to match (deadline + status) */
-.cc-planPage .cc-planGrid--core textarea.cc-input[data-k="step"]{ min-height:92px; }
