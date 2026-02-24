@@ -229,7 +229,7 @@ const PLAN_DURATION_OPTS = ["3 месяца","6 месяцев","1 год","2 г
 const PLAN_STATUS_OPTS = ["Завершено","В процессе","Нужна помощь"];
 let PLAN_BASELINE_STR = "";
 let PLAN_SAVING = false;
-
+let PLAN_MUTATING = false;
 function planFirstLine_(txt){
   const s = String(txt||"").trim();
   if(!s) return "";
@@ -469,27 +469,11 @@ function ensurePlanUi_(){
     if(wrap) wrap.remove();
     else if(table) table.remove();
 
-    let add = document.getElementById("btnAddPlanStep");
-    if(!add){
-      add = document.createElement("button");
-      add.type = "button";
-      add.id = "btnAddPlanStep";
-      add.className = "cc-btn cc-planAdd";
-      add.textContent = "Добавить шаг";
-      acc.insertAdjacentElement("afterend", add);
-    }
+const oldAdd = document.getElementById("btnAddPlanStep");
+if(oldAdd) oldAdd.remove();
 
-    let hint = document.getElementById("planStepLimitHint");
-    if(!hint){
-      hint = document.createElement("div");
-      hint.id = "planStepLimitHint";
-      hint.className = "cc-planHint hidden";
-      hint.textContent = "Максимум 6 шагов";
-      add.insertAdjacentElement("afterend", hint);
-    }
-
-    if(add && add.dataset.bound !== "1"){
-      add.dataset.bound = "1";
+const oldHint = document.getElementById("planStepLimitHint");
+if(oldHint) oldHint.remove();
       add.addEventListener("click", ()=>{
         const plan = collectPlan_();
         plan.steps = Array.isArray(plan.steps) ? plan.steps : [];
@@ -536,13 +520,8 @@ function ensurePlanUi_(){
       upd.id = "planUpdatedInline";
       upd.className = "cc-planUpdated";
 
-          right.appendChild(upd);
-
-      // move "Добавить шаг" into topbar рядом с "Сохранить"
-      const addTop = document.getElementById("btnAddPlanStep");
-      if(addTop){
-        addTop.classList.add("cc-planAddTop");
-        right.appendChild(addTop);
+      right.appendChild(upd);
+      right.appendChild(addTop);
       }
 
       right.appendChild(btn);
@@ -571,6 +550,38 @@ function ensurePlanUi_(){
     page.dataset.planBound = "1";
     page.addEventListener("input",(e)=>{ planSyncStepSummary_(e.target); planRecalcDirty_(); });
     page.addEventListener("change",(e)=>{ planSyncStepSummary_(e.target); planRecalcDirty_(); });
+    page.addEventListener("click",(e)=>{
+  const addBtn = e.target && e.target.closest ? e.target.closest("[data-cc-plan-add]") : null;
+  const delBtn = !addBtn && e.target && e.target.closest ? e.target.closest("[data-cc-plan-del]") : null;
+  const btn = addBtn || delBtn;
+  if(!btn || btn.disabled) return;
+
+  const idx = addBtn ? Number(btn.dataset.ccPlanAdd) : Number(btn.dataset.ccPlanDel);
+  if(!Number.isFinite(idx) || idx < 0) return;
+
+  if(PLAN_MUTATING) return;
+  PLAN_MUTATING = true;
+
+  try{
+    const plan = collectPlan_();
+    const steps = Array.isArray(plan.steps) ? plan.steps : [];
+
+    if(addBtn){
+      if(steps.length >= PLAN_MAX_STEPS) return;
+      steps.splice(idx + 1, 0, {});
+      renderStepsRows_(steps, idx + 1);
+    } else {
+      if(steps.length <= 1) return;
+      steps.splice(idx, 1);
+      const openIndex = Math.min(idx, steps.length - 1);
+      renderStepsRows_(steps, openIndex);
+    }
+
+    planRecalcDirty_();
+  } finally {
+    PLAN_MUTATING = false;
+  }
+});
   }
 }
 
@@ -827,7 +838,7 @@ function planStepItemHtml_(s,i){
   <div class="cc-planCoreLeft">
     <div class="cc-planField cc-planField--wide">
       <div class="cc-planLabel">Достижение</div>
-      <textarea class="cc-input" data-k="step" data-i="${i}" maxlength="800">${escapeHtml(stepTxt)}</textarea>
+     <textarea class="cc-input" rows="2" data-k="step" data-i="${i}" maxlength="800">${escapeHtml(stepTxt)}</textarea>
     </div>
   </div>
   <div class="cc-planCoreRight">
@@ -868,6 +879,21 @@ function planStepItemHtml_(s,i){
             <div class="cc-planLabel">Запасные варианты</div>
             <textarea class="cc-input" data-k="fallback" data-i="${i}" maxlength="800">${escapeHtml(String(s.fallback||"").trim())}</textarea>
           </div>
+<div class="cc-planStepActions">
+  <button type="button" class="cc-planStepBtn cc-planStepBtn--add" data-cc-plan-add="${i}">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    Добавить шаг
+  </button>
+
+  <button type="button" class="cc-planStepBtn cc-planStepBtn--del" data-cc-plan-del="${i}">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M6 6l12 12M18 6l-12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    Удалить шаг
+  </button>
+</div>
         </div>
       </div>
     </div>
@@ -886,11 +912,12 @@ function renderStepsRows_(steps, openIndex){
   acc.innerHTML = arr.map((s,i)=> planStepItemHtml_(s||{}, i)).join("");
   planEnhanceMonthPickers_(acc);
 
-  const add = document.getElementById("btnAddPlanStep");
-  if(add) add.disabled = arr.length >= PLAN_MAX_STEPS;
-
-  const hint = document.getElementById("planStepLimitHint");
-  if(hint) hint.classList.toggle("hidden", !(add && add.disabled));
+ acc.querySelectorAll("[data-cc-plan-add]").forEach(b=>{
+  b.disabled = arr.length >= PLAN_MAX_STEPS;
+});
+acc.querySelectorAll("[data-cc-plan-del]").forEach(b=>{
+  b.disabled = arr.length <= 1;
+});
 
   // биндим аккордеон как в других блоках
   bindMiniAccordion_(acc);
