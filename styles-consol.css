@@ -436,7 +436,7 @@
   text-decoration:none;
 }
 
-.cc-planParams #plGoal{
+#pagePlan #plGoal{
   height:52px;
   min-height:52px;
   max-height:52px;
