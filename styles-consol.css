@@ -436,9 +436,12 @@
   text-decoration:none;
 }
 
-.cc-planParams textarea,
 .cc-planParams #plGoal{
-  min-height:70px;
+  height:52px;
+  min-height:52px;
+  max-height:52px;
+  resize:none;
+  overflow:auto;
 }
 /* ===== Step layout fix ===== */
 
