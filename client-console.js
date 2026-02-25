@@ -512,8 +512,8 @@ if(oldHint) oldHint.remove();
       upd.className = "cc-planUpdated";
 
       right.appendChild(upd);
-      right.appendChild(addTop);
       right.appendChild(btn);
+
       row.appendChild(left);
       row.appendChild(right);
 
@@ -868,6 +868,8 @@ function planStepItemHtml_(s,i){
             <div class="cc-planLabel">Запасные варианты</div>
             <textarea class="cc-input" data-k="fallback" data-i="${i}" maxlength="800">${escapeHtml(String(s.fallback||"").trim())}</textarea>
           </div>
+        </div>
+
 <div class="cc-planStepActions">
   <button type="button" class="cc-planStepBtn cc-planStepBtn--add" data-cc-plan-add="${i}">
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -883,7 +885,6 @@ function planStepItemHtml_(s,i){
     Удалить шаг
   </button>
 </div>
-        </div>
       </div>
     </div>
   `;
