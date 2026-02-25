@@ -474,15 +474,6 @@ if(oldAdd) oldAdd.remove();
 
 const oldHint = document.getElementById("planStepLimitHint");
 if(oldHint) oldHint.remove();
-      add.addEventListener("click", ()=>{
-        const plan = collectPlan_();
-        plan.steps = Array.isArray(plan.steps) ? plan.steps : [];
-        if(plan.steps.length >= PLAN_MAX_STEPS) return;
-        plan.steps.push({});
-        renderStepsRows_(plan.steps, plan.steps.length - 1);
-        planRecalcDirty_();
-      });
-    }
   }
 
     // SAVE sticky bar inside pagePlan + inline updated_at + progress
@@ -522,8 +513,6 @@ if(oldHint) oldHint.remove();
 
       right.appendChild(upd);
       right.appendChild(addTop);
-      }
-
       right.appendChild(btn);
       row.appendChild(left);
       row.appendChild(right);
