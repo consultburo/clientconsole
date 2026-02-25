@@ -848,7 +848,21 @@ function planStepItemHtml_(s,i){
   Планирование (ресурсы, риски, поддержка)
   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
 </button>
+<div class="cc-planStepActions">
+  <button type="button" class="cc-planStepBtn cc-planStepBtn--add" data-cc-plan-add="${i}">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    Добавить шаг
+  </button>
 
+  <button type="button" class="cc-planStepBtn cc-planStepBtn--del" data-cc-plan-del="${i}">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M6 6l12 12M18 6l-12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    Удалить шаг
+  </button>
+</div>
 <div class="cc-planOptBox" data-cc-plan-opt-box style="display:none;">
 
         <div class="cc-planGrid cc-planGrid--bottom">
@@ -869,24 +883,9 @@ function planStepItemHtml_(s,i){
             <textarea class="cc-input" data-k="fallback" data-i="${i}" maxlength="800">${escapeHtml(String(s.fallback||"").trim())}</textarea>
           </div>
         </div>
-
-<div class="cc-planStepActions">
-  <button type="button" class="cc-planStepBtn cc-planStepBtn--add" data-cc-plan-add="${i}">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    </svg>
-    Добавить шаг
-  </button>
-
-  <button type="button" class="cc-planStepBtn cc-planStepBtn--del" data-cc-plan-del="${i}">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M6 6l12 12M18 6l-12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-    </svg>
-    Удалить шаг
-  </button>
-</div>
-      </div>
-    </div>
+        </div>        <!-- cc-planOptBox -->
+    </div>          <!-- cc-planFull -->
+  </div>            <!-- cc-card cc-planStep -->
   `;
 }
 
