@@ -443,7 +443,7 @@ function ensurePlanUi_(){
     ta.name = g.name || "";
     ta.value = g.value || "";
     ta.setAttribute("aria-label", g.getAttribute("aria-label") || "Цель");
-    ta.rows = 3;
+    ta.rows = 2;
     g.parentNode.replaceChild(ta, g);
   }
 
