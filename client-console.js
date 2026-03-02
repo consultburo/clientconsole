@@ -226,7 +226,7 @@ const map = { dashboard:"pageDashboard", identity:"pageIdentity", experience:"pa
 
 const PLAN_MAX_STEPS = 6;
 const PLAN_DURATION_OPTS = ["3 месяца","6 месяцев","1 год","2 года"];
-const PLAN_STATUS_OPTS = ["Завершено","В процессе","Нужна помощь"];
+const PLAN_STATUS_OPTS = ["Не начато","В процессе","Нужна помощь","Завершено"];
 let PLAN_BASELINE_STR = "";
 let PLAN_SAVING = false;
 let PLAN_MUTATING = false;
@@ -245,25 +245,47 @@ function planPillsHtml_(dl, st){
   const b = st ? `<span class="cc-pill cc-mini cc-planPill cc-planPill--status">${escapeHtml(st)}</span>` : ``;
   return a + b;
 }
-function planStatusBadgeClass_(st){
+function planStatusKey_(st){
   const s = String(st||"").trim().toLowerCase();
-  if(!s) return "cc-planBadge--empty";
-  if(s.includes("помощ") || s.includes("help")) return "cc-planBadge--pause";
-  if(s.includes("заверш")) return "cc-planBadge--done";
-  if(s.includes("пауз")) return "cc-planBadge--pause";
-  if(s.includes("работ") || s.includes("процесс")) return "cc-planBadge--work";
-  return "cc-planBadge--work";
+  if(!s) return "empty";
+  if(s.includes("не нач")) return "notstart";
+  if(s.includes("помощ") || s.includes("help")) return "help";
+  if(s.includes("заверш")) return "done";
+  if(s.includes("процесс") || s.includes("работ") || s.includes("work")) return "work";
+  return "work";
+}
+
+function planApplyStatusSelClass_(sel, st){
+  if(!sel) return;
+  sel.classList.add("cc-planStatusSel");
+  sel.classList.remove(
+    "cc-planStatusSel--empty",
+    "cc-planStatusSel--notstart",
+    "cc-planStatusSel--work",
+    "cc-planStatusSel--help",
+    "cc-planStatusSel--done"
+  );
+  sel.classList.add("cc-planStatusSel--" + planStatusKey_(st));
+}
+function planStatusBadgeClass_(st){
+  const k = planStatusKey_(st);
+  if(k === "notstart") return "cc-planBadge--notstart";
+  if(k === "help")     return "cc-planBadge--pause";
+  if(k === "done")     return "cc-planBadge--done";
+  if(k === "work")     return "cc-planBadge--work";
+  return "cc-planBadge--empty";
 }
 
 function planStepMeta_(stepTxt, dl, st){
-  const a = String(stepTxt||"").trim() ? 1 : 0;
-  const b = String(dl||"").trim() ? 1 : 0;
-  const c = String(st||"").trim() ? 1 : 0;
-
-  const filled = a + b + c;
-  const cls = filled === 0 ? "cc-planStepDot--empty" : (filled === 3 ? "cc-planStepDot--done" : "cc-planStepDot--partial");
-  return { filled, total: 3, cls };
+  const k = planStatusKey_(st);
+  const cls =
+    (k === "done") ? "cc-planStepDot--done" :
+    (k === "help") ? "cc-planStepDot--help" :
+    (k === "work") ? "cc-planStepDot--partial" :
+                     "cc-planStepDot--empty"; // empty + notstart
+  return { cls };
 }
+
 function planStepDotClass_(stepTxt, dl, st){
   return planStepMeta_(stepTxt, dl, st).cls;
 }
@@ -675,13 +697,17 @@ if(stEl2){
   stEl2.className = "cc-planBadge " + planStatusBadgeClass_(st);
 }
 
-  const meta = planStepMeta_(stepTxt, dl, st);
-  const dot = card.querySelector(".cc-planStepDot");
-  if(dot){
-    dot.classList.remove("cc-planStepDot--empty","cc-planStepDot--partial","cc-planStepDot--done");
-    dot.classList.add(meta.cls);
-  }
+ const meta = planStepMeta_(stepTxt, dl, st);
+
+if(stEl) planApplyStatusSelClass_(stEl, st);
+
+const dot = card.querySelector(".cc-planStepDot");
+if(dot){
+  dot.classList.remove("cc-planStepDot--empty","cc-planStepDot--partial","cc-planStepDot--done","cc-planStepDot--help");
+  dot.classList.add(meta.cls);
 }
+}
+
 function ensurePlanUi_(){
   // duration -> select (без правки HTML)
   const d = document.getElementById("plDuration");
@@ -1039,6 +1065,7 @@ function planStepItemHtml_(s,i){
   const stepTxt = String(s.step||"").trim();
   const dl = normMonth_(s.deadline||"");
   const st = String(s.status||"").trim();
+  const stKey = planStatusKey_(st);
   const meta = planStepMeta_(stepTxt, dl, st);
   const dot = `<span class="cc-planStepDot ${meta.cls}" aria-hidden="true"></span>`;
   const line = planFirstLine_(stepTxt);
@@ -1098,7 +1125,7 @@ function planStepItemHtml_(s,i){
 
     <div class="cc-planField cc-planField--status">
       <div class="cc-planLabel">Статус</div>
-      <select class="cc-input" data-k="status" data-i="${i}">${stOptions}</select>
+      <select class="cc-input cc-planStatusSel cc-planStatusSel--${stKey}" data-k="status" data-i="${i}">${stOptions}</select>
     </div>
   </div>
 </div>
