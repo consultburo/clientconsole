@@ -399,8 +399,6 @@ if(!document.getElementById("plStepsTitle")){
     }
     }
   }
-}
-}
 function planGridChildById_(grid, id) {
   const el = document.getElementById(id);
   if (!grid || !el || !grid.contains(el)) return null;
