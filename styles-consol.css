@@ -2839,21 +2839,24 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
   border-top-left-radius:0;
   border-top-right-radius:0;
   border-top:0;
-}
 
-/* actions right under the accordion toggle */
-.cc-planOptToggle + .cc-planStepActions{
+  /* важно: низ отдаём кнопкам */
+  border-bottom-left-radius:0;
+  border-bottom-right-radius:0;
+  border-bottom:0;
+}
+/* buttons become the bottom part of the "Планирование" accordion when open */
+.cc-planOptOpen .cc-planOptBox + .cc-planStepActions{
   margin-top:0;
-  margin-bottom:10px;
-}
-
-/* glue it visually into one "Планирование" block when opened */
-.cc-planOptOpen .cc-planOptToggle + .cc-planStepActions{
-  padding:10px 12px 0;
+  padding:10px 12px 10px;
   background:#f6f8fa;
   border-left:1px solid rgba(0,0,0,0.06);
   border-right:1px solid rgba(0,0,0,0.06);
+  border-bottom:1px solid rgba(0,0,0,0.06);
+  border-bottom-left-radius:12px;
+  border-bottom-right-radius:12px;
 }
+
 .cc-planStepActions{
   margin-top:12px;
   display:grid;
