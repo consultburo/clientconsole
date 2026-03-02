@@ -411,7 +411,7 @@
   display:grid;
   grid-template-columns:minmax(120px, 1fr) minmax(160px, 1fr) minmax(160px, 1.2fr);
   gap:12px;
-  align-items:end;
+  align-items:start;
 }
 
 @media (max-width:900px){
@@ -449,7 +449,23 @@
   color:#6b7280;
   margin:0 0 10px;
 }
+/* Plan: labels (project params) */
+.cc-planPage .plan-grid label,
+.cc-planPage .plan-grid .cc-label{
+  display:block;
+  font-size:12px;
+  font-weight:800;
+  color:#043D56;
+  margin:0 0 6px;
+}
 
+/* Plan: "Шаги" heading (если это h3 в разметке) */
+#pagePlan h3{
+  font-size:14px;
+  font-weight:900;
+  color:#043D56;
+  margin:18px 0 12px;
+}
 /* Head row: title+hint left, edit/save right */
 .cc-planParamsHead{
   display:flex;
