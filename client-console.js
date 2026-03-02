@@ -390,16 +390,17 @@ if(!document.getElementById("plStepsTitle")){
       if(block){
         if(block.style && block.style.marginTop) block.style.marginTop = "0px";
         const keep = document.getElementById("plStepsTitle");
-const nodes = block.querySelectorAll("h1,h2,h3,h4,div,p,span");
-for (const el of nodes) {
-  if (!el) continue;
-  if (el === keep) continue;
-  if (keep && keep.contains(el)) continue;
-  if (el.closest && el.closest(".cc-planStep")) continue;
+        const root = document.getElementById("pagePlan") || block;
+        const nodes = root.querySelectorAll("h1,h2,h3,h4,div,p,span");
+        for (const el of nodes) {
+          if (!el) continue;
+          if (el === keep) continue;
+          if (keep && keep.contains(el)) continue;
+          if (el.closest && el.closest(".cc-planStep")) continue;
 
-  const tt = String(el.textContent || "").replace(/\s+/g, " ").trim();
-  if (tt === "Шаги") { el.remove(); break; }
-}
+          const tt = String(el.textContent || "").replace(/\s+/g, " ").trim();
+          if (tt === "Шаги") el.remove();
+        }
 
     }
   }
@@ -774,7 +775,6 @@ if(oldHint) oldHint.remove();
       upd.id = "planUpdatedInline";
       upd.className = "cc-planUpdated";
 
-      right.appendChild(upd);
       right.appendChild(btn);
 
       row.appendChild(left);
@@ -790,7 +790,7 @@ if(oldHint) oldHint.remove();
 
       bar.appendChild(row);
       bar.appendChild(prog);
-
+      bar.appendChild(upd);
       page.insertBefore(bar, page.firstChild);
       planNormalizeLayout_();
     }
