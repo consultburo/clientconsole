@@ -2825,6 +2825,27 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
   background:#f6f8fa;
   border:1px solid rgba(0,0,0,0.06);
 }
+/* Plan: make OptToggle + OptBox one accordion block (no "matryoshka") */
+.cc-planOptOpen .cc-planOptToggle{
+  border-bottom-left-radius:0;
+  border-bottom-right-radius:0;
+  border-bottom:0;
+  background:#f6f8fa;
+  border:1px solid rgba(0,0,0,0.06);
+}
+
+.cc-planOptOpen .cc-planOptBox{
+  margin-top:0;
+  border-top-left-radius:0;
+  border-top-right-radius:0;
+  border-top:0;
+}
+
+/* When actions moved inside OptBox */
+.cc-planOptBox .cc-planStepActions{
+  margin-top:0;
+  margin-bottom:10px;
+}
 .cc-planStepActions{
   margin-top:12px;
   display:grid;
