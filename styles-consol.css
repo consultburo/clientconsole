@@ -2841,10 +2841,18 @@ body, .cc-wrap, table, button, input { font-family: 'Montserrat', sans-serif !im
   border-top:0;
 }
 
-/* When actions moved inside OptBox */
-.cc-planOptBox .cc-planStepActions{
+/* actions right under the accordion toggle */
+.cc-planOptToggle + .cc-planStepActions{
   margin-top:0;
   margin-bottom:10px;
+}
+
+/* glue it visually into one "Планирование" block when opened */
+.cc-planOptOpen .cc-planOptToggle + .cc-planStepActions{
+  padding:10px 12px 0;
+  background:#f6f8fa;
+  border-left:1px solid rgba(0,0,0,0.06);
+  border-right:1px solid rgba(0,0,0,0.06);
 }
 .cc-planStepActions{
   margin-top:12px;
