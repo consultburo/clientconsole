@@ -6,7 +6,7 @@ if (window.__CC_CLIENT_CONSOLE_INIT__) {
  * CONFIG
  * ====================== */
 const USE_JSONP = true; // Вариант A: false (WebApp UI). Вариант B (Tilda): true
-const API_BASE = "https://script.google.com/macros/s/AKfycbygSI1JmP57gvBk4cc18dNBH9uGWY5RAicYEmt6bHK4dTzvkDu0Ipp9KxsxaNgcmqW4/exec";
+const API_BASE = "https://script.google.com/macros/s/AKfycbzlhrj5raA5WaPhpzRQzbErrTopgHIz_hOmBngs3d8rDonzlV5io5n-jlQGG1pZQKoI/exec";
 const API_PROXY_BASE = "";
 
 const STORE_KEY = "profid_client_console_v1";
@@ -309,8 +309,15 @@ function planNormalizeLayout_(){
   // 2) Параметры проекта: логическая секция без карточки/теней
   const grid = page.querySelector(".plan-grid");
   if(grid && !grid.closest(".cc-planParams")){
-    const wrap = document.createElement("div");
+       const wrap = document.createElement("div");
     wrap.className = "cc-planParams";
+    wrap.dataset.edit = "0";
+
+    const head = document.createElement("div");
+    head.className = "cc-planParamsHead";
+
+    const headL = document.createElement("div");
+    headL.className = "cc-planParamsHeadL";
 
     const title = document.createElement("div");
     title.className = "cc-planParamsTitle";
@@ -320,10 +327,33 @@ function planNormalizeLayout_(){
     hint.className = "cc-planParamsHint";
     hint.textContent = "Сначала задайте параметры проекта — затем переходите к шагам.";
 
+    headL.appendChild(title);
+    headL.appendChild(hint);
+
+    const headR = document.createElement("div");
+    headR.className = "cc-planParamsHeadR";
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.id = "btnPlanParamsEdit";
+    btn.className = "cc-btn cc-planParamsBtn";
+    btn.innerHTML = `Редактировать <span class="cc-btn-spinner hidden"></span>`;
+
+    const msg = document.createElement("div");
+    msg.id = "planParamsMsg";
+    msg.className = "cc-planParamsMsg hidden";
+
+    headR.appendChild(btn);
+    headR.appendChild(msg);
+
+    head.appendChild(headL);
+    head.appendChild(headR);
+
     grid.parentNode.insertBefore(wrap, grid);
-    wrap.appendChild(title);
-    wrap.appendChild(hint);
+    wrap.appendChild(head);
     wrap.appendChild(grid);
+
+    planInitParamsUi_(wrap, grid);
   }
 
   // 3) Сплющиваем лишний вложенный контейнер вокруг шагов (если он реально вложен "карточкой в карточке")
@@ -352,6 +382,216 @@ function planNormalizeLayout_(){
   }
 }
 }
+function planGridChildById_(grid, id) {
+  const el = document.getElementById(id);
+  if (!grid || !el || !grid.contains(el)) return null;
+  let cur = el;
+  while (cur && cur.parentElement !== grid) cur = cur.parentElement;
+  return (cur && cur.parentElement === grid) ? cur : null;
+}
+function planDurationToMonths_(v) {
+  v = String(v || "").trim();
+  if (v === "3 месяца") return 3;
+  if (v === "6 месяцев") return 6;
+  if (v === "1 год") return 12;
+  if (v === "2 года") return 24;
+  return 0;
+}
+function planParseYmd_(s) {
+  const m = String(s || "").trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return null;
+  return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+}
+function planAddMonthsClamp_(d, months) {
+  const nd = new Date(d.getTime());
+  const day = nd.getDate();
+  nd.setMonth(nd.getMonth() + months);
+  if (nd.getDate() !== day) nd.setDate(0); // clamp к последнему дню предыдущего месяца
+  return nd;
+}
+function planFmtDateRu_(d) {
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yy = String(d.getFullYear());
+  return `${dd}.${mm}.${yy}`;
+}
+function planParamsApplyEdit_(wrap, on) {
+  if (!wrap) return;
+  wrap.dataset.edit = on ? "1" : "0";
+
+  const btn = document.getElementById("btnPlanParamsEdit");
+  if (btn) {
+    const sp = btn.querySelector(".cc-btn-spinner");
+    btn.textContent = on ? "Сохранить" : "Редактировать";
+    if (sp) btn.appendChild(sp);
+  }
+
+  const pr = document.getElementById("plProject");
+  const du = document.getElementById("plDuration");
+  const go = document.getElementById("plGoal");
+  const sd = document.getElementById("plStartDate");
+
+  if (pr) pr.readOnly = !on;
+  if (go) go.readOnly = !on;
+  if (du) du.disabled = !on;
+  if (sd) sd.disabled = !on;
+}
+function planUpdateDeadlineUi_(force) {
+  const wrap = document.querySelector("#pagePlan .cc-planParams");
+  if (!wrap) return;
+  if (!force && wrap.dataset.edit !== "1") return;
+
+  const daysEl = document.getElementById("plDeadlineDays");
+  const dateEl = document.getElementById("plDeadlineDate");
+  if (!daysEl || !dateEl) return;
+
+  const months = planDurationToMonths_(document.getElementById("plDuration") ? document.getElementById("plDuration").value : "");
+  const sdEl = document.getElementById("plStartDate");
+  const sd = sdEl ? String(sdEl.value || "").trim() : "";
+
+  if (!months || !/^\d{4}-\d{2}-\d{2}$/.test(sd)) {
+    daysEl.textContent = "—";
+    dateEl.textContent = "—";
+    return;
+  }
+
+  const start = planParseYmd_(sd);
+  if (!start) {
+    daysEl.textContent = "—";
+    dateEl.textContent = "—";
+    return;
+  }
+
+  const end = planAddMonthsClamp_(start, months);
+  const eod = new Date(end.getFullYear(), end.getMonth(), end.getDate(), 23, 59, 59, 999);
+  const diff = eod.getTime() - Date.now();
+  const days = diff > 0 ? Math.ceil(diff / 86400000) : 0;
+
+  daysEl.textContent = `${days} дней`;
+  dateEl.textContent = `до ${planFmtDateRu_(end)}`;
+}
+async function planSaveParams_() {
+  setPlanErr_("");
+  const wrap = document.querySelector("#pagePlan .cc-planParams");
+  const btn = document.getElementById("btnPlanParamsEdit");
+  const msg = document.getElementById("planParamsMsg");
+  const sp = btn ? btn.querySelector(".cc-btn-spinner") : null;
+
+  if (msg) { msg.classList.add("hidden"); msg.textContent = ""; }
+  if (!wrap || !btn) return;
+
+  // если не в edit-mode — просто включаем редактирование
+  if (wrap.dataset.edit !== "1") {
+    planParamsApplyEdit_(wrap, true);
+    planUpdateDeadlineUi_(true);
+    return;
+  }
+
+  if (PLAN_SAVING) return;
+  PLAN_SAVING = true;
+  btn.disabled = true;
+  if (sp) sp.classList.remove("hidden");
+
+  try {
+    const st = S.get();
+
+    let base = null;
+    try { base = JSON.parse(PLAN_BASELINE_STR || ""); } catch (_) { base = null; }
+    if (!base || typeof base !== "object") {
+      const domPlan = collectPlan_();
+      base = { steps: Array.isArray(domPlan.steps) ? domPlan.steps : [] };
+    }
+
+    base.project_name = (document.getElementById("plProject").value || "").trim();
+    base.duration = (document.getElementById("plDuration").value || "").trim();
+    base.goal = (document.getElementById("plGoal").value || "").trim();
+
+    const sdEl = document.getElementById("plStartDate");
+    const sdRaw = sdEl ? String(sdEl.value || "").trim() : "";
+    base.start_date = (/^\d{4}-\d{2}-\d{2}$/.test(sdRaw) ? sdRaw : "");
+
+    const out = await api_("save_plan", {
+      client_id: st.client_id,
+      session_token: st.session_token,
+      plan_json_b64: b64u_(JSON.stringify(base))
+    });
+
+    if (!out || !out.ok) {
+      if (msg) {
+        msg.textContent = "Ошибка сохранения: " + ((out && out.error) || "unknown");
+        msg.classList.remove("hidden");
+      }
+      return;
+    }
+
+    const when = out.updated_at || out.plan_updated_at || "";
+    planSetUpdatedAt_(when);
+    showSaved_(when);
+
+    PLAN_BASELINE_STR = JSON.stringify(base);
+    planParamsApplyEdit_(wrap, false);
+    planUpdateDeadlineUi_(true);
+    planRecalcDirty_();
+  } finally {
+    PLAN_SAVING = false;
+    btn.disabled = false;
+    if (sp) sp.classList.add("hidden");
+    planRecalcDirty_();
+  }
+}
+function planInitParamsUi_(wrap, grid) {
+  if (!wrap || !grid || grid.dataset.ccParams === "1") return;
+  grid.dataset.ccParams = "1";
+
+  const projBlock = planGridChildById_(grid, "plProject") || grid.children[0] || null;
+  const durBlock  = planGridChildById_(grid, "plDuration") || grid.children[1] || null;
+  const goalBlock = planGridChildById_(grid, "plGoal") || grid.children[2] || null;
+
+  const left = document.createElement("div");
+  left.className = "cc-planParamsLeft";
+
+  if (projBlock) left.appendChild(projBlock);
+  if (goalBlock) left.appendChild(goalBlock);
+
+  const right = document.createElement("div");
+  right.className = "cc-planParamsRight";
+
+  if (durBlock) right.appendChild(durBlock);
+
+  if (!document.getElementById("plStartDate")) {
+    const startWrap = document.createElement("div");
+    startWrap.className = "cc-planStart";
+    startWrap.innerHTML = `
+      <label class="cc-label" for="plStartDate">Начало</label>
+      <input id="plStartDate" type="date" class="cc-input" aria-label="Начало" disabled>
+    `;
+    right.appendChild(startWrap);
+  }
+
+  if (!document.getElementById("plDeadlineDays")) {
+    const dl = document.createElement("div");
+    dl.className = "cc-planDeadline";
+    dl.innerHTML = `
+      <div id="plDeadlineDays" class="cc-planDeadlineVal">—</div>
+      <div id="plDeadlineDate" class="cc-planDeadlineDate">—</div>
+    `;
+    right.appendChild(dl);
+  }
+
+  grid.innerHTML = "";
+  grid.appendChild(left);
+  grid.appendChild(right);
+
+  const btn = document.getElementById("btnPlanParamsEdit");
+  if (btn && btn.dataset.bound !== "1") {
+    btn.dataset.bound = "1";
+    btn.addEventListener("click", planSaveParams_);
+  }
+
+  planParamsApplyEdit_(wrap, false);
+  planUpdateDeadlineUi_(true);
+}
+
 function planSetUpdatedAt_(whenStr){
   const el = document.getElementById("planUpdatedInline");
   if(el) el.textContent = whenStr ? ("Обновлено: " + whenStr) : "";
@@ -537,8 +777,8 @@ if(oldHint) oldHint.remove();
   // dirty binding (anti-spam: save кнопка уже блокируется через PLAN_SAVING)
   if(page && page.dataset.planBound !== "1"){
     page.dataset.planBound = "1";
-    page.addEventListener("input",(e)=>{ planSyncStepSummary_(e.target); planRecalcDirty_(); });
-    page.addEventListener("change",(e)=>{ planSyncStepSummary_(e.target); planRecalcDirty_(); });
+    page.addEventListener("input",(e)=>{ planSyncStepSummary_(e.target); planRecalcDirty_(); if(e.target && (e.target.id==="plDuration" || e.target.id==="plStartDate")) planUpdateDeadlineUi_(); });
+    page.addEventListener("change",(e)=>{ planSyncStepSummary_(e.target); planRecalcDirty_(); if(e.target && (e.target.id==="plDuration" || e.target.id==="plStartDate")) planUpdateDeadlineUi_(); });
     page.addEventListener("click",(e)=>{
   const addBtn = e.target && e.target.closest ? e.target.closest("[data-cc-plan-add]") : null;
   const delBtn = !addBtn && e.target && e.target.closest ? e.target.closest("[data-cc-plan-del]") : null;
@@ -959,8 +1199,11 @@ function fillPlan_(plan, updatedAt){
   const p = plan || {};
   document.getElementById("plProject").value = p.project_name || "";
   document.getElementById("plDuration").value = p.duration || "";
+  const sd = document.getElementById("plStartDate");
+  if (sd) sd.value = p.start_date || "";
   document.getElementById("plGoal").value = p.goal || "";
   renderStepsRows_(p.steps || []);
+  planUpdateDeadlineUi_(true);
   planSetUpdatedAt_(updatedAt || p.updated_at || "");
   planSetBaselineFromDom_();
   planUpdateProgress_();
