@@ -359,6 +359,21 @@ function planNormalizeLayout_(){
   // 3) Сплющиваем лишний вложенный контейнер вокруг шагов (если он реально вложен "карточкой в карточке")
   const acc = document.getElementById("plStepsAcc");
   if(acc){
+// 2.5) Нормализуем заголовок "Шаги" прямо перед аккордеоном
+if(!document.getElementById("plStepsTitle")){
+  const prev = acc.previousElementSibling;
+  const tt = prev ? (prev.textContent||"").replace(/\s+/g," ").trim() : "";
+  if(prev && /^Шаги\b/.test(tt) && !prev.querySelector(".cc-planStep")){
+    prev.id = "plStepsTitle";
+    prev.classList.add("cc-planStepsTitle");
+  } else {
+    const h = document.createElement("div");
+    h.id = "plStepsTitle";
+    h.className = "cc-planStepsTitle";
+    h.textContent = "Шаги";
+    acc.parentNode.insertBefore(h, acc);
+  }
+}
     const inner = acc.closest(".cc-card,.cc-panel,.cc-box");
     if(inner){
       const outer = inner.parentElement && inner.parentElement.closest(".cc-card,.cc-panel,.cc-box");
