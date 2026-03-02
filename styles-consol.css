@@ -395,47 +395,93 @@
 .cc-planPage .plan-grid{
   display:grid;
   grid-template-columns:minmax(0,7fr) minmax(0,3fr);
-  grid-template-areas:
-    "project duration"
-    "goal goal";
   gap:14px;
   margin-top:0;
-  align-items:end;
+  align-items:start;
   width:100%;
 }
 
+.cc-planParamsLeft{
+  display:grid;
+  gap:14px;
+  min-width:0;
+}
+
+.cc-planParamsRight{
+  display:grid;
+  grid-template-columns:minmax(120px, 1fr) minmax(160px, 1fr) minmax(160px, 1.2fr);
+  gap:12px;
+  align-items:end;
+}
+
+@media (max-width:900px){
+  .cc-planPage .plan-grid{
+    grid-template-columns:1fr;
+  }
+  .cc-planParamsRight{
+    grid-template-columns:1fr;
+  }
+}
+/* Plan: params inputs must be fluid inside grid */
 .cc-planPage .plan-grid .cc-input,
 .cc-planPage .plan-grid textarea,
 .cc-planPage .plan-grid select{
   width:100%;
   min-width:0;
 }
+
 /* Plan: parameters section (no card, no shadow) */
 .cc-planParams{
   margin-top:12px;
   padding:6px 0 14px;
   border-bottom:1px solid rgba(4,61,86,0.10);
 }
+
 .cc-planParamsTitle{
   font-weight:700;
   font-size:13px;
   color:#043d56;
   margin:0 0 4px;
 }
+
 .cc-planParamsHint{
   font-size:12px;
   color:#6b7280;
   margin:0 0 10px;
 }
-.cc-planPage .cc-label{
-  display:block;
-  font-size:12px;
-  font-weight:600;
-  color:#043d56;
-  margin:0 0 6px;
-  text-decoration:none;
+
+/* Head row: title+hint left, edit/save right */
+.cc-planParamsHead{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
 }
 
+.cc-planParamsHeadL{ min-width:0; }
+
+.cc-planParamsHeadR{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:6px;
+}
+
+.cc-planParamsBtn{
+  height:34px;
+  padding:0 12px;
+  border-radius:10px;
+  font-weight:800;
+}
+
+.cc-planParamsMsg{
+  font-size:12px;
+  color:#C24A4A;
+  text-align:right;
+  max-width:260px;
+}
+
+/* Goal textarea in params: ровно 2 строки по высоте */
 #pagePlan #plGoal{
   height:52px;
   min-height:52px;
@@ -443,49 +489,31 @@
   resize:none;
   overflow:auto;
 }
-/* ===== Step layout fix ===== */
 
-.cc-planPage .cc-stepGrid{
-  display:grid;
-  grid-template-columns: 1fr 280px;
-  gap:14px;
-  align-items:stretch;
-}
-
-.cc-planPage .cc-stepLeft textarea{
-  min-height:120px;   /* высота = сроки + статус */
-  resize:vertical;
-}
-
-.cc-planPage .cc-stepRight{
+/* Deadline mini-indicator */
+.cc-planDeadline{
+  height:52px;
+  border:1px solid rgba(4,61,86,0.14);
+  border-radius:12px;
+  background:#fff;
+  padding:10px 12px;
   display:flex;
   flex-direction:column;
-  gap:14px;
+  justify-content:center;
 }
 
-@media (max-width:900px){
-  .cc-planPage .cc-stepGrid{
-    grid-template-columns:1fr;
-  }
-}
-.cc-planPage .plan-grid > :nth-child(1){ grid-area:project; }
-.cc-planPage .plan-grid > :nth-child(2){ grid-area:duration; }
-.cc-planPage .plan-grid > :nth-child(3){ grid-area:goal; }
-
-@media (max-width:900px){
-  .cc-planPage .plan-grid{
-    grid-template-columns:1fr;
-    grid-template-areas:
-  "project"
-  "duration"
-  "goal";
-  }
-  .cc-planPage .plan-grid > :nth-child(2){ justify-self:stretch; }
-  .cc-planPage .plan-grid > :nth-child(2) .cc-input,
-  .cc-planPage .plan-grid > :nth-child(2) select{ max-width:none; }
-
+.cc-planDeadlineVal{
+  font-size:18px;
+  font-weight:900;
+  color:#043d56;
+  line-height:1.1;
 }
 
+.cc-planDeadlineDate{
+  font-size:12px;
+  color:#6b7280;
+  margin-top:2px;
+}
 /* Auth (shadcn-like) */
 #authPane{
   min-height: calc(100vh - 80px);
