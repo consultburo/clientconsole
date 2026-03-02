@@ -2121,8 +2121,17 @@ details[open] .cc-skillsLegendChevron{ transform:rotate(180deg); }
   border-bottom-right-radius:16px;
   padding:12px 14px;
   background:#fff;
+  overflow:hidden;
 }
-
+.cc-exp-acc[open] > .cc-exp-accSum{
+  border-bottom-left-radius:0;
+  border-bottom-right-radius:0;
+  border-bottom:0;
+}
+.cc-exp-acc[open] > .cc-exp-accBody{
+  border-top-left-radius:0;
+  border-top-right-radius:0;
+}
 /* убираем “дубль” заголовка внутри раскрытого контента */
 .cc-exp-accBody .cc-exp-head{ display:none; }
 /* убираем внутреннюю карточку, оставляем только сетку/переменные */
@@ -2167,6 +2176,8 @@ details[open] .cc-skillsLegendChevron{ transform:rotate(180deg); }
 .cc-conclRow + .cc-conclRow{
   border-top:1px solid rgba(4,61,86,0.14);
 }
+.cc-conclRow--head .cc-conclCell{ padding:6px 8px; }
+.cc-conclRow--head .cc-conclCell + .cc-conclCell{ border-left:0; }
 
 .cc-conclCell{ padding:10px; }
 .cc-conclCell + .cc-conclCell{ border-left:1px solid rgba(4,61,86,0.14); }
@@ -2174,7 +2185,8 @@ details[open] .cc-skillsLegendChevron{ transform:rotate(180deg); }
 .cc-conclCell--head{
   font-weight:800;
   color:#043D56;
-  background:rgba(255,255,255,0.35);
+  background:transparent;
+  font-size:13px;
 }
 
 .cc-conclCell--label{
@@ -2187,7 +2199,25 @@ details[open] .cc-skillsLegendChevron{ transform:rotate(180deg); }
   border-left:1px solid rgba(4,61,86,0.14);
 }
 
-.cc-conclTa{ width:100%; resize:vertical; }
+.cc-conclTa{
+  width:100%;
+  min-width:0;        /* критично: перебиваем min-width:240px от .cc-input */
+  resize:none;
+  overflow:auto;
+
+  height:44px;
+  min-height:44px;
+  max-height:44px;
+
+  padding:8px 10px;   /* перебиваем padding:0 10px от .cc-input */
+  box-sizing:border-box;
+  line-height:1.25;
+}
+.cc-conclRow--out .cc-conclTa{
+  height:76px;
+  min-height:76px;
+  max-height:76px;
+}
 
 /* mobile: упрощаем в 1 колонку, заголовок-строку скрываем */
 @media (max-width: 768px){
