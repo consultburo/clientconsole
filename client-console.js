@@ -64,7 +64,7 @@ function b64u_(s){
 }
 
 function jsonp_(url, timeoutMs){
-  const tm = Number(timeoutMs || 12000);
+  const tm = Number(timeoutMs || 30000);
   return new Promise((resolve,reject)=>{
     const cb = "cb_" + Math.random().toString(36).slice(2);
     const s = document.createElement("script");
@@ -848,6 +848,8 @@ function planStepItemHtml_(s,i){
   Планирование (ресурсы, риски, поддержка)
   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
 </button>
+
+<div class="cc-planOptBox" data-cc-plan-opt-box style="display:none;">
 <div class="cc-planStepActions">
   <button type="button" class="cc-planStepBtn cc-planStepBtn--add" data-cc-plan-add="${i}">
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -863,8 +865,6 @@ function planStepItemHtml_(s,i){
     Удалить шаг
   </button>
 </div>
-<div class="cc-planOptBox" data-cc-plan-opt-box style="display:none;">
-
         <div class="cc-planGrid cc-planGrid--bottom">
           <div class="cc-planField">
             <div class="cc-planLabel">Ресурсы</div>
