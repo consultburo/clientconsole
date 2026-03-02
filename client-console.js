@@ -279,11 +279,11 @@ function planStatusBadgeClass_(st){
 function planStepMeta_(stepTxt, dl, st){
   const k = planStatusKey_(st);
   const cls =
-    (k === "done") ? "cc-planStepDot--done" :
-    (k === "help") ? "cc-planStepDot--help" :
-    (k === "work") ? "cc-planStepDot--partial" :
-                     "cc-planStepDot--empty"; // empty + notstart
-  return { cls };
+    (k === "done")     ? "cc-planStepDot--done" :
+    (k === "help")     ? "cc-planStepDot--help" :
+    (k === "work")     ? "cc-planStepDot--partial" :
+    (k === "notstart") ? "cc-planStepDot--notstart" :
+                         "cc-planStepDot--empty";
 }
 
 function planStepDotClass_(stepTxt, dl, st){
@@ -703,7 +703,7 @@ if(stEl) planApplyStatusSelClass_(stEl, st);
 
 const dot = card.querySelector(".cc-planStepDot");
 if(dot){
-  dot.classList.remove("cc-planStepDot--empty","cc-planStepDot--partial","cc-planStepDot--done","cc-planStepDot--help");
+  dot.classList.remove("cc-planStepDot--empty","cc-planStepDot--notstart","cc-planStepDot--partial","cc-planStepDot--done","cc-planStepDot--help");
   dot.classList.add(meta.cls);
 }
 }
