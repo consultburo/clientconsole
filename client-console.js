@@ -284,6 +284,7 @@ function planStepMeta_(stepTxt, dl, st){
     (k === "work")     ? "cc-planStepDot--partial" :
     (k === "notstart") ? "cc-planStepDot--notstart" :
                          "cc-planStepDot--empty";
+  return { cls };
 }
 
 function planStepDotClass_(stepTxt, dl, st){
