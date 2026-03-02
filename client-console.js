@@ -6,7 +6,7 @@ if (window.__CC_CLIENT_CONSOLE_INIT__) {
  * CONFIG
  * ====================== */
 const USE_JSONP = true; // Вариант A: false (WebApp UI). Вариант B (Tilda): true
-const API_BASE = "https://script.google.com/macros/s/AKfycbzlhrj5raA5WaPhpzRQzbErrTopgHIz_hOmBngs3d8rDonzlV5io5n-jlQGG1pZQKoI/exec";
+const API_BASE = "https://script.google.com/macros/s/AKfycbyeBsXWnQ5qM-29x0S1P20QXp_2P-JYo3df3wQEpMPbnvVnrCW5GqX97duJGda4bshc/exec";
 const API_PROXY_BASE = "";
 
 const STORE_KEY = "profid_client_console_v1";
@@ -382,26 +382,21 @@ if(!document.getElementById("plStepsTitle")){
       }
     }
 
-    // 4) Убираем лишний "Шаги" и inline margin-top у блока шагов (legacy разметка Tilda)
-    const tbody = document.getElementById("plStepsBody");
-    if(tbody){
-      const wrap = tbody.closest(".plan-table-wrap");
-      const block = wrap ? wrap.parentElement : null; // это div style="margin-top:14px;"
-      if(block){
-        if(block.style && block.style.marginTop) block.style.marginTop = "0px";
-        const keep = document.getElementById("plStepsTitle");
-        const root = document.getElementById("pagePlan") || block;
-        const nodes = root.querySelectorAll("h1,h2,h3,h4,div,p,span");
-        for (const el of nodes) {
-          if (!el) continue;
-          if (el === keep) continue;
-          if (keep && keep.contains(el)) continue;
-          if (el.closest && el.closest(".cc-planStep")) continue;
+    // 4) Удаляем дубли заголовка "Шаги" (legacy) — не завязываемся на plStepsBody
+    const keep = document.getElementById("plStepsTitle");
+    if (keep && page) {
+      const nodes = page.querySelectorAll("h1,h2,h3,h4,div,p,span");
+      for (const el of nodes) {
+        if (!el) continue;
+        if (el === keep) continue;
+        if (keep.contains(el)) continue;
+        if (el.closest && el.closest("#plStepsAcc")) continue;
+        if (el.closest && el.closest(".cc-planStep")) continue;
 
-          const tt = String(el.textContent || "").replace(/\s+/g, " ").trim();
-          if (tt === "Шаги") el.remove();
-        }
-
+        const tt = String(el.textContent || "").replace(/\s+/g, " ").trim();
+        if (tt === "Шаги") el.remove();
+      }
+    }
     }
   }
 }
@@ -534,10 +529,17 @@ async function planSaveParams_() {
     const sdRaw = sdEl ? String(sdEl.value || "").trim() : "";
     base.start_date = (/^\d{4}-\d{2}-\d{2}$/.test(sdRaw) ? sdRaw : "");
 
-    const out = await api_("save_plan", {
+        const paramsOnly = {
+      project_name: base.project_name,
+      duration: base.duration,
+      goal: base.goal,
+      start_date: base.start_date
+    };
+
+    const out = await api_("save_plan_params", {
       client_id: st.client_id,
       session_token: st.session_token,
-      plan_json_b64: b64u_(JSON.stringify(base))
+      params_json_b64: b64u_(JSON.stringify(paramsOnly))
     });
 
     if (!out || !out.ok) {
@@ -681,8 +683,6 @@ if(stEl2){
     dot.classList.remove("cc-planStepDot--empty","cc-planStepDot--partial","cc-planStepDot--done");
     dot.classList.add(meta.cls);
   }
-  const cnt = card.querySelector(".cc-planStepCount");
-  if(cnt) cnt.textContent = `${meta.filled}/${meta.total}`;
 }
 function ensurePlanUi_(){
   // duration -> select (без правки HTML)
