@@ -2368,7 +2368,7 @@ function renderExperienceHtml_(exp, sigLocked){
     </div>
   </div>
 
-  ${sigLocked ? `
+   ${sigLocked ? `
     <div class="cc-lockOverlay" aria-hidden="true">
       <div class="cc-lockInner">
         <span class="cc-lockIco">
@@ -2387,8 +2387,13 @@ function renderExperienceHtml_(exp, sigLocked){
     </div>
   ` : ``}
 </div>
+  </div>
+</details>
+
 <div class="cc-exp-section cc-exp-concl" style="margin-top:12px;">
   <div class="cc-exp-head">
+    <!-- временно SVG_STAR, потом заменим на твой SVG -->
+    <span class="cc-exp-ico cc-exp-ico-concl">${SVG_STAR}</span>
     <div class="cc-exp-title">Заключение</div>
   </div>
 
