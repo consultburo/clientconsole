@@ -2148,6 +2148,9 @@ details[open] .cc-skillsLegendChevron{ transform:rotate(180deg); }
 .cc-exp-acc--sig > .cc-exp-accSum,
 .cc-exp-acc--sig > .cc-exp-accBody{ background:#fff8e6; border-color:#ffe7ae; }
 
+.cc-exp-acc--concl > .cc-exp-accSum,
+.cc-exp-acc--concl > .cc-exp-accBody{ background:#f4edff; border-color:#e6d6ff; }
+
 .cc-exp-accTag{
   font-size:12px;
   font-weight:800;
@@ -2160,12 +2163,22 @@ details[open] .cc-skillsLegendChevron{ transform:rotate(180deg); }
 /* ===== Experience: Conclusion block ===== */
 .cc-exp-concl{ background:#f4edff; border-color:#e6d6ff; }
 
-.cc-conclTable{
-  margin-top:10px;
-  border:1px solid rgba(4,61,86,0.14);
+.cc-conclHint{
+  margin:0 0 10px;
+  padding:10px 12px;
   border-radius:14px;
-  overflow:hidden;
-  background:rgba(255,255,255,0.55);
+  border:1px solid rgba(4,61,86,0.12);
+  background:rgba(255,255,255,0.65);
+  font-size:12px;
+  line-height:1.35;
+  color:#043D56;
+}
+.cc-conclTable{
+  margin-top:0;
+  border:0;
+  border-radius:0;
+  overflow:visible;
+  background:transparent;
 }
 
 .cc-conclRow{
@@ -2173,14 +2186,13 @@ details[open] .cc-skillsLegendChevron{ transform:rotate(180deg); }
   grid-template-columns:220px 1fr 1fr;
 }
 
-.cc-conclRow + .cc-conclRow{
-  border-top:1px solid rgba(4,61,86,0.14);
-}
+.cc-conclRow + .cc-conclRow{ border-top:0; }
+
 .cc-conclRow--head .cc-conclCell{ padding:6px 8px; }
 .cc-conclRow--head .cc-conclCell + .cc-conclCell{ border-left:0; }
 
 .cc-conclCell{ padding:10px; }
-.cc-conclCell + .cc-conclCell{ border-left:1px solid rgba(4,61,86,0.14); }
+.cc-conclCell + .cc-conclCell{ border-left:0; }
 
 .cc-conclCell--head{
   font-weight:800;
@@ -2196,7 +2208,7 @@ details[open] .cc-skillsLegendChevron{ transform:rotate(180deg); }
 
 .cc-conclRow--out .cc-conclCell--span2{
   grid-column:2 / span 2;
-  border-left:1px solid rgba(4,61,86,0.14);
+  border-left:0;
 }
 
 .cc-conclTa{
@@ -2205,18 +2217,18 @@ details[open] .cc-skillsLegendChevron{ transform:rotate(180deg); }
   resize:none;
   overflow:auto;
 
-  height:44px;
-  min-height:44px;
-  max-height:44px;
+  height:88px;
+  min-height:88px;
+  max-height:88px;
 
   padding:8px 10px;   /* перебиваем padding:0 10px от .cc-input */
   box-sizing:border-box;
   line-height:1.25;
 }
 .cc-conclRow--out .cc-conclTa{
-  height:76px;
-  min-height:76px;
-  max-height:76px;
+  height:88px;
+  min-height:88px;
+  max-height:88px;
 }
 
 /* mobile: упрощаем в 1 колонку, заголовок-строку скрываем */
