@@ -389,9 +389,17 @@ if(!document.getElementById("plStepsTitle")){
       const block = wrap ? wrap.parentElement : null; // это div style="margin-top:14px;"
       if(block){
         if(block.style && block.style.marginTop) block.style.marginTop = "0px";
-               const first = block.firstElementChild;
-        const t = first ? (first.textContent||"").replace(/\s+/g," ").trim() : "";
-        if(first && /^Шаги\b/.test(t)) first.remove();
+        const keep = document.getElementById("plStepsTitle");
+const nodes = block.querySelectorAll("h1,h2,h3,h4,div,p,span");
+for (const el of nodes) {
+  if (!el) continue;
+  if (el === keep) continue;
+  if (keep && keep.contains(el)) continue;
+  if (el.closest && el.closest(".cc-planStep")) continue;
+
+  const tt = String(el.textContent || "").replace(/\s+/g, " ").trim();
+  if (tt === "Шаги") { el.remove(); break; }
+}
 
     }
   }
@@ -1035,8 +1043,6 @@ function planStepItemHtml_(s,i){
   const st = String(s.status||"").trim();
   const meta = planStepMeta_(stepTxt, dl, st);
   const dot = `<span class="cc-planStepDot ${meta.cls}" aria-hidden="true"></span>`;
-  const count = `<span class="cc-planStepCount">${meta.filled}/${meta.total}</span>`;
-
   const line = planFirstLine_(stepTxt);
   const ach = line ? escapeHtml(line) : `<span class="cc-planEmpty">Заполните достижение</span>`;
   const dlLbl = dl ? escapeHtml(planMonthLabel_(dl)) : `<span class="cc-planEmpty">Срок не выбран</span>`;
@@ -1052,7 +1058,7 @@ function planStepItemHtml_(s,i){
       <div class="cc-planStepHead" data-cc-acc-preview>
         <div class="cc-planStepLeft">
           ${dot}
-          <div class="cc-planStepTitle">Шаг ${i+1} ${count}</div>
+          <div class="cc-planStepTitle">Шаг ${i+1}</div>
         </div>
 
         <div class="cc-planSummary" aria-label="Резюме шага">
