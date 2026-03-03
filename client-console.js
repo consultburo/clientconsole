@@ -6,7 +6,7 @@ if (window.__CC_CLIENT_CONSOLE_INIT__) {
  * CONFIG
  * ====================== */
 const USE_JSONP = true; // Вариант A: false (WebApp UI). Вариант B (Tilda): true
-const API_BASE = "https://script.google.com/macros/s/AKfycbyeBsXWnQ5qM-29x0S1P20QXp_2P-JYo3df3wQEpMPbnvVnrCW5GqX97duJGda4bshc/exec";
+const API_BASE = "https://script.google.com/macros/s/AKfycbw7Z8MSpoSjLRJ5F0uoOSQRHPAZ-6ZdndQl2Nigp8Upc-8Gv0UJlvOtDElkejCJeDo/exec";
 const API_PROXY_BASE = "";
 
 const STORE_KEY = "profid_client_console_v1";
@@ -3393,6 +3393,7 @@ document.addEventListener("toggle", (e) => {
     .forEach(d => { if (d !== t) d.open = false; });
 }, true);
 }
+
 
 
 
