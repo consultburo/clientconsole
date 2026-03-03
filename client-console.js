@@ -2215,23 +2215,24 @@ let OUT_BASELINE_STR = "";
 let OUT_SAVING = false;
 
 function outEls_(){
-  return {
-    acc: document.querySelector(".cc-exp-acc--outs"),
-    btn: document.getElementById("btnOutEdit"),
-    msg: document.getElementById("outMsg"),
-    sp:  (document.getElementById("btnOutEdit") ? document.getElementById("btnOutEdit").querySelector(".cc-btn-spinner") : null),
-    const g5 = (base)=>[1,2,3,4,5].map(i=>document.getElementById(`${base}_${i}`));
+  const acc = document.getElementById("outsAcc");
+  const btn = document.getElementById("btnOutEdit");
+  const msg = document.getElementById("outMsg");
+  const sp  = btn ? btn.querySelector(".cc-btn-spinner") : null;
 
-f: {
-  area: g5("outArea"),
-  env:  g5("outEnv"),
-  func: g5("outFunc"),
-  goals:g5("outGoals"),
-  practical: g5("outPractical")
-}
+  const g5 = (base)=>[1,2,3,4,5].map(i=>document.getElementById(`${base}_${i}`)).filter(Boolean);
+
+  return {
+    acc, btn, msg, sp,
+    f: {
+      area: g5("outArea"),
+      env: g5("outEnv"),
+      func: g5("outFunc"),
+      goals: g5("outGoals"),
+      practical: g5("outPractical")
+    }
   };
 }
-
 function outCollect_(){
  const { f } = outEls_();
 const v = (x)=> (x && x.value ? String(x.value).trim() : "");
