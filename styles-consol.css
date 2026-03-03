@@ -2078,9 +2078,9 @@ details[open] .cc-skillsLegendChevron{ transform:rotate(180deg); }
 .cc-exp-head{ display:flex; align-items:center; gap:10px; margin:0 0 10px; }
 .cc-exp-ico{ width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; flex:0 0 18px; }
 .cc-exp-ico-prof{ color:#0b6f92; }
-.cc-exp-ico-sig{ color:#f0b429; }
-.cc-exp-ico-concl{ color:#f0b429; }
-.cc-exp-ico-outs{ color:#f97316; }
+.cc-exp-ico-sig{ color:#f0b429; }     /* как было */
+.cc-exp-ico-outs{ color:#f0b429; }    /* Выводы = как Значимый опыт */
+.cc-exp-ico-concl{ color:#0b6f92; }   /* Заключение = как Проф опыт (см. .cc-exp-ico-prof) */
 .cc-exp-title{ font-weight:800; color:#043D56; }
 /* ===== Experience: section accordion ===== */
 .cc-exp-acc{ margin:0; }
@@ -2100,8 +2100,14 @@ details[open] .cc-skillsLegendChevron{ transform:rotate(180deg); }
   border:1px solid #e6f0f4;
   border-radius:16px;
   background:#fff;
+  box-shadow:0 10px 26px rgba(4,61,86,0.08);
+  transition:box-shadow .15s ease, transform .15s ease;
 }
-
+.cc-exp-accSum:hover{
+  box-shadow:0 14px 34px rgba(4,61,86,0.12);
+  transform:translateY(-1px);
+}
+.cc-exp-acc[open] > .cc-exp-accSum{ transform:none; }
 .cc-exp-accTitle{ flex:1; min-width:0; }
 
 .cc-exp-accChev{
@@ -2271,35 +2277,74 @@ details[open] .cc-skillsLegendChevron{ transform:rotate(180deg); }
   .cc-conclCell + .cc-conclCell{ border-left:0; }
   .cc-conclRow--out .cc-conclCell--span2{ grid-column:auto; border-left:0; }
 }
-.cc-outRows{
+/* ===== Outputs (Выводы): inner accordions ===== */
+.cc-outAccs{
   display:grid;
   gap:10px;
   margin-top:10px;
 }
 
-.cc-outRow{
-  padding:10px 12px;
+.cc-outAcc{
   border:1px solid rgba(4,61,86,0.12);
   background:rgba(255,255,255,0.65);
   border-radius:14px;
+  overflow:hidden;
+  transition:box-shadow .15s ease, transform .15s ease;
 }
 
-.cc-outStack{ display:grid; gap:8px; }
+.cc-outAcc > summary{ list-style:none; }
+.cc-outAcc > summary::-webkit-details-marker{ display:none; }
+.cc-outAcc > summary::marker{ content:""; }
 
-.cc-outIn{
-  width: 100%;
+.cc-outAccSum{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  cursor:pointer;
+  user-select:none;
+  padding:10px 12px;
 }
-.cc-outLabel{
+
+.cc-outAccTitle{
   font-weight:800;
   color:#043D56;
   font-size:13px;
 }
 
-.cc-outIn{
-  height:42px;
-  min-width:0;
+.cc-outAccChev{
+  width:26px; height:26px;
+  border-radius:10px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 26px;
 }
 
+.cc-outAccChev svg{
+  width:18px; height:18px;
+  transition:transform .15s ease;
+  color:#043D56;
+}
+
+.cc-outAcc[open] .cc-outAccChev svg{ transform:rotate(180deg); }
+
+.cc-outAccBody{
+  padding:10px 12px 12px;
+  border-top:1px solid rgba(4,61,86,0.08);
+}
+
+/* hover + shadow по ТЗ */
+.cc-outAcc:hover{
+  box-shadow:0 12px 28px rgba(4,61,86,0.10);
+  transform:translateY(-1px);
+}
+.cc-outAcc[open]:hover{ transform:none; }
+
+/* inputs remain */
+.cc-outStack{ display:grid; gap:8px; }
+.cc-outIn{ width:100%; height:42px; min-width:0; }
+.cc-outIn[readonly]{ background:rgba(255,255,255,0.55); }
 .cc-outIn[readonly]{
   background:rgba(255,255,255,0.55);
 }
