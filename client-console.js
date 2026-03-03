@@ -2352,13 +2352,22 @@ function outInitUi_(outputs){
 
   const o = (outputs && typeof outputs === "object") ? outputs : {};
   const { f } = outEls_();
-  const put = (el, v)=>{ if(el && (el.value || "").trim() === "" && String(v||"").trim() !== "") el.value = String(v||""); };
+  const split5 = (s)=> String(s||"").split(/\r?\n/).map(x=>String(x||"").trim());
+  const put5 = (arr, txt)=>{
+  if(!Array.isArray(arr) || !arr.length) return;
+  const lines = split5(txt);
+  for(let i=0;i<arr.length;i++){
+    const el = arr[i];
+    const v = String(lines[i]||"").trim();
+    if(el && (el.value||"").trim()==="" && v) el.value = v;
+  }
+};
 
-  put(f.area, o.area);
-  put(f.env, o.env);
-  put(f.func, o.func);
-  put(f.goals, o.goals);
-  put(f.practical, o.practical);
+put5(f.area, o.area);
+put5(f.env, o.env);
+put5(f.func, o.func);
+put5(f.goals, o.goals);
+put5(f.practical, o.practical);
 
   outApplyEdit_(false);
   outSetBaselineFromDom_();
@@ -2561,8 +2570,8 @@ function renderExperienceHtml_(exp, sigLocked){
   const outP = out5_(outs.practical);
   const SVG_BRIEFCASE = `<svg fill="currentColor" width="18" height="18" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><g><path d="M26,9h-2.6c-1.2-3-4.1-5-7.4-5c-3.3,0-6.2,2-7.4,5H6c-1.7,0-3,1.3-3,3v0.6C3,16.1,5.9,19,9.4,19h13.3c3.5,0,6.4-2.9,6.4-6.4V12C29,10.3,27.7,9,26,9z M16,6c2.2,0,4.1,1.2,5.2,3H10.8C11.9,7.2,13.8,6,16,6z"/><path d="M23,21C23,21,23,21,23,21l0,2c0,0.6-0.4,1-1,1s-1-0.4-1-1v-2H11v2c0,0.6-0.4,1-1,1s-1-0.4-1-1v-2c0,0,0,0,0,0c-2.4-0.1-4.5-1.2-6-2.9V25c0,1.7,1.3,3,3,3h20c1.7,0,3-1.3,3-3v-6.9C27.5,19.8,25.4,20.9,23,21z"/></g></svg>`;
   const SVG_STAR = `<svg fill="currentColor" width="18" height="18" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><path d="M62.799,23.737c-0.47-1.399-1.681-2.419-3.139-2.642l-16.969-2.593L35.069,2.265C34.419,0.881,33.03,0,31.504,0c-1.527,0-2.915,0.881-3.565,2.265l-7.623,16.238L3.347,21.096c-1.458,0.223-2.669,1.242-3.138,2.642c-0.469,1.4-0.115,2.942,0.916,4l12.392,12.707l-2.935,17.977c-0.242,1.488,0.389,2.984,1.62,3.854c1.23,0.87,2.854,0.958,4.177,0.228l15.126-8.365l15.126,8.365c0.597,0.33,1.254,0.492,1.908,0.492c0.796,0,1.592-0.242,2.269-0.72c1.231-0.869,1.861-2.365,1.619-3.854l-2.935-17.977l12.393-12.707C62.914,26.68,63.268,25.138,62.799,23.737z"/></svg>`;
-  const SVG_OUTS = `<svg xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 512 388.14"><path d="m360 .02 21.53 1.12c10.07.51 17.88 9.18 17.35 19.23l-1.03 19.95c9.64 3.42 18.64 8.11 26.85 13.82l15.59-14.05c7.49-6.75 19.12-6.16 25.88 1.34l14.43 16c6.76 7.49 6.15 19.13-1.33 25.88l-16.73 15.11c4.1 8.45 7.18 17.49 9.1 26.93l22.97 1.19c10.07.51 17.88 9.16 17.36 19.24l-1.11 21.52c-.51 10.07-9.18 17.88-19.24 17.36l-23.2-1.2a113.69 113.69 0 0 1-11.88 25.56l15.37 17.05c6.75 7.48 6.15 19.13-1.34 25.88l-16 14.44c-7.49 6.75-19.13 6.13-25.88-1.34l-14.53-16.1c-8.53 4.66-17.71 8.26-27.34 10.63v-56.17c20.01-8.72 34.46-28.18 35.66-51.46 1.69-32.79-23.52-60.74-56.31-62.43-19.74-1.01-37.73 7.72-49.29 21.99h-66.17c3.42-10.11 8.2-19.55 14.12-28.14l-10.52-11.66c-6.75-7.48-6.15-19.13 1.33-25.88l16.02-14.44c7.47-6.74 19.12-6.14 25.87 1.34l11.38 12.6c9.64-4.74 20.03-8.15 30.91-10.02l.93-17.92C341.28 7.32 349.93-.49 360 .02zM188.23 257.05h-25.91c-.83 0-1.47.66-1.47 1.49v54.6c0 .83.64 1.49 1.47 1.49h25.88c.83 0 1.48-.66 1.48-1.49v-54.6c0-.82-.62-1.49-1.45-1.49zM19.91 141.15h93.21v-25.76c0-7.76 6.34-14.1 14.09-14.1h96.13c7.75 0 14.09 6.34 14.09 14.1v25.76h93.21c10.9 0 19.91 9.02 19.91 19.91v48.1c-22.51 15.43-45.73 28.58-69.67 39.31-24.07 10.78-48.89 19.14-74.57 24.91v-19.23c0-8.88-7.15-16.04-16.03-16.04h-30.04c-8.88 0-16.03 7.16-16.03 16.04v18.79C119.22 267.21 95 259 71.52 248.47 46.93 237.46 23.1 223.85 0 207.87v-46.81c0-10.91 9.01-19.91 19.91-19.91zm330.64 96.54v130.54a19.7 19.7 0 0 1-5.87 14.04c-3.63 3.61-8.6 5.87-14.04 5.87H19.91c-5.5 0-10.46-2.26-14.03-5.87C2.25 378.64 0 373.68 0 368.23V236.49c19.65 12.6 39.88 23.62 60.68 32.94 26.85 12.05 54.69 21.26 83.55 27.42v20.68c0 8.88 7.16 16.04 16.04 16.04h30.04c8.87 0 16.03-7.16 16.03-16.04v-20.3c29.41-6.16 58.01-15.52 85.42-27.82 20.14-9.02 39.73-19.63 58.79-31.72zm-212.56-117.2c-.95 0-1.79.85-1.79 1.8v18.31h78.13v-18.31c0-.96-.85-1.8-1.79-1.8h-74.55z"/></svg>`;
-  const SVG_CONCLUSION = `<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="18" height="18" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 512 273.23"><path fill-rule="nonzero" d="m404.63 17.77 26.89 62.95 68.58 6.13c3.52.42 6.6 2.19 8.74 4.73 2.15 2.56 3.35 5.9 3.13 9.44l-.07.85c-.2 1.6-.67 3.11-1.36 4.48l-.32.57c-.59 1.03-1.32 1.98-2.15 2.81l-52.28 45.69 15.26 66.77c.84 3.62.11 7.27-1.73 10.19-1.83 2.9-4.8 5.14-8.43 5.96-1.79.4-3.62.43-5.36.12-1.69-.3-3.3-.93-4.74-1.83l-58.58-35.01-27.34 16.34-3.63-15.61 27.01-16.15a7.633 7.633 0 0 1 7.88-.03l59.09 35.32-15.34-67.1c-.59-2.66.23-5.54 2.42-7.46l51.85-45.27-68.1-6.12a7.621 7.621 0 0 1-6.8-4.64l-27.04-63.3-17.94 42.02-16.02-1.44 21.55-50.45c1.45-3.42 4.16-5.93 7.36-7.22 3.21-1.3 6.91-1.36 10.34.1l.59.28c1.4.67 2.64 1.57 3.66 2.6 1.23 1.19 2.19 2.67 2.88 4.28zM262.89 4.59l36.63 85.78 92.92 8.34c4.1.35 7.14 3.96 6.78 8.06-.17 2-1.12 3.74-2.52 4.96l-70.29 61.38 20.79 90.99c.93 4.01-1.59 8.02-5.61 8.94-2.05.47-4.11.04-5.75-1.03L256 224.27l-80.1 47.89c-3.53 2.11-8.1.96-10.22-2.58a7.365 7.365 0 0 1-.87-5.48l-.01-.01 20.8-90.98-70.3-61.38a7.445 7.445 0 0 1-.7-10.52 7.448 7.448 0 0 1 5.21-2.53l92.67-8.31 36.65-85.82c1.62-3.8 6-5.57 9.79-3.95 1.87.79 3.25 2.26 3.97 3.99zM119.79 27.6 92.75 90.9a7.61 7.61 0 0 1-6.8 4.64l-68.1 6.12 51.85 45.27a7.653 7.653 0 0 1 2.42 7.46l-15.33 67.1 59.08-35.32c2.51-1.5 5.53-1.39 7.88.03l27.05 16.17-3.57 15.65-27.44-16.4-58.58 35.02c-1.44.89-3.05 1.52-4.74 1.82-1.74.31-3.57.28-5.35-.12-3.65-.82-6.61-3.06-8.44-5.96-1.83-2.93-2.56-6.57-1.73-10.19l15.26-66.77-52.28-45.69c-.83-.83-1.56-1.78-2.15-2.81l-.31-.57c-.7-1.37-1.17-2.88-1.37-4.48l-.07-.82c-.22-3.56.98-6.9 3.13-9.47 2.14-2.55 5.22-4.31 8.75-4.73l68.57-6.13 26.89-62.95c.69-1.61 1.66-3.09 2.86-4.29 1.04-1.02 2.27-1.91 3.67-2.58l.61-.29c3.41-1.46 7.12-1.4 10.33-.11 3.2 1.3 5.91 3.81 7.36 7.23l21.54 50.43-16 1.44-17.95-42z"/></svg>`;
+  const SVG_OUTS = `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 512 388.14"><path d="m360 .02 21.53 1.12c10.07.51 17.88 9.18 17.35 19.23l-1.03 19.95c9.64 3.42 18.64 8.11 26.85 13.82l15.59-14.05c7.49-6.75 19.12-6.16 25.88 1.34l14.43 16c6.76 7.49 6.15 19.13-1.33 25.88l-16.73 15.11c4.1 8.45 7.18 17.49 9.1 26.93l22.97 1.19c10.07.51 17.88 9.16 17.36 19.24l-1.11 21.52c-.51 10.07-9.18 17.88-19.24 17.36l-23.2-1.2a113.69 113.69 0 0 1-11.88 25.56l15.37 17.05c6.75 7.48 6.15 19.13-1.34 25.88l-16 14.44c-7.49 6.75-19.13 6.13-25.88-1.34l-14.53-16.1c-8.53 4.66-17.71 8.26-27.34 10.63v-56.17c20.01-8.72 34.46-28.18 35.66-51.46 1.69-32.79-23.52-60.74-56.31-62.43-19.74-1.01-37.73 7.72-49.29 21.99h-66.17c3.42-10.11 8.2-19.55 14.12-28.14l-10.52-11.66c-6.75-7.48-6.15-19.13 1.33-25.88l16.02-14.44c7.47-6.74 19.12-6.14 25.87 1.34l11.38 12.6c9.64-4.74 20.03-8.15 30.91-10.02l.93-17.92C341.28 7.32 349.93-.49 360 .02zM188.23 257.05h-25.91c-.83 0-1.47.66-1.47 1.49v54.6c0 .83.64 1.49 1.47 1.49h25.88c.83 0 1.48-.66 1.48-1.49v-54.6c0-.82-.62-1.49-1.45-1.49zM19.91 141.15h93.21v-25.76c0-7.76 6.34-14.1 14.09-14.1h96.13c7.75 0 14.09 6.34 14.09 14.1v25.76h93.21c10.9 0 19.91 9.02 19.91 19.91v48.1c-22.51 15.43-45.73 28.58-69.67 39.31-24.07 10.78-48.89 19.14-74.57 24.91v-19.23c0-8.88-7.15-16.04-16.03-16.04h-30.04c-8.88 0-16.03 7.16-16.03 16.04v18.79C119.22 267.21 95 259 71.52 248.47 46.93 237.46 23.1 223.85 0 207.87v-46.81c0-10.91 9.01-19.91 19.91-19.91zm330.64 96.54v130.54a19.7 19.7 0 0 1-5.87 14.04c-3.63 3.61-8.6 5.87-14.04 5.87H19.91c-5.5 0-10.46-2.26-14.03-5.87C2.25 378.64 0 373.68 0 368.23V236.49c19.65 12.6 39.88 23.62 60.68 32.94 26.85 12.05 54.69 21.26 83.55 27.42v20.68c0 8.88 7.16 16.04 16.04 16.04h30.04c8.87 0 16.03-7.16 16.03-16.04v-20.3c29.41-6.16 58.01-15.52 85.42-27.82 20.14-9.02 39.73-19.63 58.79-31.72zm-212.56-117.2c-.95 0-1.79.85-1.79 1.8v18.31h78.13v-18.31c0-.96-.85-1.8-1.79-1.8h-74.55z"/></svg>`;
+  const SVG_CONCLUSION = `<svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="18" height="18" shape-rendering="geometricPrecision" text-rendering="geometricPrecision" image-rendering="optimizeQuality" fill-rule="evenodd" clip-rule="evenodd" viewBox="0 0 512 273.23"><path fill-rule="nonzero" d="m404.63 17.77 26.89 62.95 68.58 6.13c3.52.42 6.6 2.19 8.74 4.73 2.15 2.56 3.35 5.9 3.13 9.44l-.07.85c-.2 1.6-.67 3.11-1.36 4.48l-.32.57c-.59 1.03-1.32 1.98-2.15 2.81l-52.28 45.69 15.26 66.77c.84 3.62.11 7.27-1.73 10.19-1.83 2.9-4.8 5.14-8.43 5.96-1.79.4-3.62.43-5.36.12-1.69-.3-3.3-.93-4.74-1.83l-58.58-35.01-27.34 16.34-3.63-15.61 27.01-16.15a7.633 7.633 0 0 1 7.88-.03l59.09 35.32-15.34-67.1c-.59-2.66.23-5.54 2.42-7.46l51.85-45.27-68.1-6.12a7.621 7.621 0 0 1-6.8-4.64l-27.04-63.3-17.94 42.02-16.02-1.44 21.55-50.45c1.45-3.42 4.16-5.93 7.36-7.22 3.21-1.3 6.91-1.36 10.34.1l.59.28c1.4.67 2.64 1.57 3.66 2.6 1.23 1.19 2.19 2.67 2.88 4.28zM262.89 4.59l36.63 85.78 92.92 8.34c4.1.35 7.14 3.96 6.78 8.06-.17 2-1.12 3.74-2.52 4.96l-70.29 61.38 20.79 90.99c.93 4.01-1.59 8.02-5.61 8.94-2.05.47-4.11.04-5.75-1.03L256 224.27l-80.1 47.89c-3.53 2.11-8.1.96-10.22-2.58a7.365 7.365 0 0 1-.87-5.48l-.01-.01 20.8-90.98-70.3-61.38a7.445 7.445 0 0 1-.7-10.52 7.448 7.448 0 0 1 5.21-2.53l92.67-8.31 36.65-85.82c1.62-3.8 6-5.57 9.79-3.95 1.87.79 3.25 2.26 3.97 3.99zM119.79 27.6 92.75 90.9a7.61 7.61 0 0 1-6.8 4.64l-68.1 6.12 51.85 45.27a7.653 7.653 0 0 1 2.42 7.46l-15.33 67.1 59.08-35.32c2.51-1.5 5.53-1.39 7.88.03l27.05 16.17-3.57 15.65-27.44-16.4-58.58 35.02c-1.44.89-3.05 1.52-4.74 1.82-1.74.31-3.57.28-5.35-.12-3.65-.82-6.61-3.06-8.44-5.96-1.83-2.93-2.56-6.57-1.73-10.19l15.26-66.77-52.28-45.69c-.83-.83-1.56-1.78-2.15-2.81l-.31-.57c-.7-1.37-1.17-2.88-1.37-4.48l-.07-.82c-.22-3.56.98-6.9 3.13-9.47 2.14-2.55 5.22-4.31 8.75-4.73l68.57-6.13 26.89-62.95c.69-1.61 1.66-3.09 2.86-4.29 1.04-1.02 2.27-1.91 3.67-2.58l.61-.29c3.41-1.46 7.12-1.4 10.33-.11 3.2 1.3 5.91 3.81 7.36 7.23l21.54 50.43-16 1.44-17.95-42z"/></svg>`;
   const safe = (s) => escapeHtml(String(s||""));
   const safeBr = (s) => safe(s).replace(/\n/g,"<br>");
   const fmtMonths = (v) => {
@@ -2807,57 +2816,99 @@ function renderExperienceHtml_(exp, sigLocked){
         </div>
         <div id="outMsg" class="cc-conclMsg hidden"></div>
 
-        <div class="cc-outRows">
-        <div class="cc-outRow">
-  <div class="cc-outLabel">Профессиональная область (вакансии-фавориты, выбранные отрасли с указанием должности в них, другие идеи):
-Некоторые из них будут выбраны как будущие профессиональные проекты</div>
-  <div class="cc-outStack">
-    <input id="outArea_1" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outA && outA[0]) || "")}">
-    <input id="outArea_2" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outA && outA[1]) || "")}">
-    <input id="outArea_3" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outA && outA[2]) || "")}">
-    <input id="outArea_4" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outA && outA[3]) || "")}">
-    <input id="outArea_5" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outA && outA[4]) || "")}">
-  </div>
-</div>
-          <div class="cc-outRow">
-            <div class="cc-outLabel">Окружение (корпоративная культура, коллеги, начальство, ресурсы):</div>
-           <div class="cc-outStack">
-    <input id="outEnv_1" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outE && outE[0]) || "")}">
-    <input id="outEnv_2" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outE && outE[1]) || "")}">
-    <input id="outEnv_3" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outE && outE[2]) || "")}">
-    <input id="outEnv_4" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outE && outE[3]) || "")}">
-    <input id="outEnv_5" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outE && outE[4]) || "")}">
-  </div>
-          <div class="cc-outRow">
-            <div class="cc-outLabel">Функционал:</div>
-            <div class="cc-outStack">
-    <input id="outFunc_1" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outF && outF[0]) || "")}">
-    <input id="outFunc_2" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outF && outF[1]) || "")}">
-    <input id="outFunc_3" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outF && outF[2]) || "")}">
-    <input id="outFunc_4" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outF && outF[3]) || "")}">
-    <input id="outFunc_5" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outF && outF[4]) || "")}">
-  </div>
-          <div class="cc-outRow">
-            <div class="cc-outLabel">Цели (стоящие в значимом опыте):</div>
-            <div class="cc-outStack">
-    <input id="outGoals_1" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outG && outG[0]) || "")}">
-    <input id="outGoals_2" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outG && outG[1]) || "")}">
-    <input id="outGoals_3" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outG && outG[2]) || "")}">
-    <input id="outGoals_4" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outG && outG[3]) || "")}">
-    <input id="outGoals_5" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outG && outG[4]) || "")}">
-  </div>
-          <div class="cc-outRow">
-            <div class="cc-outLabel">Возможные практические выводы:</div>
-            <div class="cc-outStack">
-    <input id="outPractical_1" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outP && outP[0]) || "")}">
-    <input id="outPractical_2" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outP && outP[1]) || "")}">
-    <input id="outPractical_3" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outP && outP[2]) || "")}">
-    <input id="outPractical_4" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outP && outP[3]) || "")}">
-    <input id="outPractical_5" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outP && outP[4]) || "")}">
-  </div>
-        </div>
+       <div class="cc-outAccs">
 
+  <details class="cc-outAcc" open>
+    <summary class="cc-outAccSum">
+      <div class="cc-outAccTitle">Профессиональная область</div>
+      <span class="cc-outAccChev" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </span>
+    </summary>
+    <div class="cc-outAccBody">
+      <div class="cc-outStack">
+        <input id="outArea_1" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outA && outA[0]) || "")}">
+        <input id="outArea_2" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outA && outA[1]) || "")}">
+        <input id="outArea_3" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outA && outA[2]) || "")}">
+        <input id="outArea_4" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outA && outA[3]) || "")}">
+        <input id="outArea_5" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outA && outA[4]) || "")}">
       </div>
+    </div>
+  </details>
+
+  <details class="cc-outAcc">
+    <summary class="cc-outAccSum">
+      <div class="cc-outAccTitle">Окружение</div>
+      <span class="cc-outAccChev" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </span>
+    </summary>
+    <div class="cc-outAccBody">
+      <div class="cc-outStack">
+        <input id="outEnv_1" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outE && outE[0]) || "")}">
+        <input id="outEnv_2" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outE && outE[1]) || "")}">
+        <input id="outEnv_3" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outE && outE[2]) || "")}">
+        <input id="outEnv_4" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outE && outE[3]) || "")}">
+        <input id="outEnv_5" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outE && outE[4]) || "")}">
+      </div>
+    </div>
+  </details>
+
+  <details class="cc-outAcc">
+    <summary class="cc-outAccSum">
+      <div class="cc-outAccTitle">Функционал</div>
+      <span class="cc-outAccChev" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </span>
+    </summary>
+    <div class="cc-outAccBody">
+      <div class="cc-outStack">
+        <input id="outFunc_1" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outF && outF[0]) || "")}">
+        <input id="outFunc_2" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outF && outF[1]) || "")}">
+        <input id="outFunc_3" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outF && outF[2]) || "")}">
+        <input id="outFunc_4" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outF && outF[3]) || "")}">
+        <input id="outFunc_5" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outF && outF[4]) || "")}">
+      </div>
+    </div>
+  </details>
+
+  <details class="cc-outAcc">
+    <summary class="cc-outAccSum">
+      <div class="cc-outAccTitle">Цели</div>
+      <span class="cc-outAccChev" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </span>
+    </summary>
+    <div class="cc-outAccBody">
+      <div class="cc-outStack">
+        <input id="outGoals_1" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outG && outG[0]) || "")}">
+        <input id="outGoals_2" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outG && outG[1]) || "")}">
+        <input id="outGoals_3" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outG && outG[2]) || "")}">
+        <input id="outGoals_4" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outG && outG[3]) || "")}">
+        <input id="outGoals_5" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outG && outG[4]) || "")}">
+      </div>
+    </div>
+  </details>
+
+  <details class="cc-outAcc">
+    <summary class="cc-outAccSum">
+      <div class="cc-outAccTitle">Возможные практические выводы</div>
+      <span class="cc-outAccChev" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </span>
+    </summary>
+    <div class="cc-outAccBody">
+      <div class="cc-outStack">
+        <input id="outPractical_1" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outP && outP[0]) || "")}">
+        <input id="outPractical_2" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outP && outP[1]) || "")}">
+        <input id="outPractical_3" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outP && outP[2]) || "")}">
+        <input id="outPractical_4" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outP && outP[3]) || "")}">
+        <input id="outPractical_5" class="cc-input cc-outIn" type="text" maxlength="500" readonly value="${safe((outP && outP[4]) || "")}">
+      </div>
+    </div>
+  </details>
+  
+</div>
 
       ${sigLocked ? `
         <div class="cc-lockOverlay" aria-hidden="true">
