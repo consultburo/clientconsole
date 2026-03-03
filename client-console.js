@@ -6,7 +6,7 @@ if (window.__CC_CLIENT_CONSOLE_INIT__) {
  * CONFIG
  * ====================== */
 const USE_JSONP = true; // Вариант A: false (WebApp UI). Вариант B (Tilda): true
-const API_BASE = "https://script.google.com/macros/s/AKfycbw7Z8MSpoSjLRJ5F0uoOSQRHPAZ-6ZdndQl2Nigp8Upc-8Gv0UJlvOtDElkejCJeDo/exec";
+const API_BASE = "https://script.google.com/macros/s/AKfycbxI5eMWKJnjNDjLueZPQJxKRLRhqlmdpbqZts8KJzcwfFuVaU1Y-Jyt6eHbfAKXR9a1/exec";
 const API_PROXY_BASE = "";
 
 const STORE_KEY = "profid_client_console_v1";
@@ -2134,6 +2134,9 @@ async function conclSave_(){
   const { acc, btn, sp } = conclEls_();
   if (!acc || !btn) return;
 
+  const lockEl = acc.querySelector(".cc-sectionLock");
+  if (lockEl && lockEl.classList.contains("is-locked")) return;
+
   // 1) не в edit-mode -> просто включаем редактирование
   if (acc.dataset.edit !== "1"){
     conclApplyEdit_(true);
@@ -2377,8 +2380,8 @@ function normSkillLevel_(v){
 function renderExperienceHtml_(exp, sigLocked){
   const prof = Array.isArray(exp.prof) ? exp.prof : [];
   const sigAll = Array.isArray(exp.sig) ? exp.sig : [];
-  const sig = sigAll.slice(0,3);
-  const sigNote = (sigAll.length > 3) ? `<div class="cc-exp-note">Показаны 3 из ${sigAll.length}</div>` : "";
+  const sig = sigAll.slice(0,20);
+  const sigNote = (sigAll.length > 20) ? `<div class="cc-exp-note">Показаны 20 из ${sigAll.length}</div>` : "";
   const concl = (exp && exp.conclusion && typeof exp.conclusion === "object") ? exp.conclusion : {};
   const SVG_BRIEFCASE = `<svg fill="currentColor" width="18" height="18" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><g><path d="M26,9h-2.6c-1.2-3-4.1-5-7.4-5c-3.3,0-6.2,2-7.4,5H6c-1.7,0-3,1.3-3,3v0.6C3,16.1,5.9,19,9.4,19h13.3c3.5,0,6.4-2.9,6.4-6.4V12C29,10.3,27.7,9,26,9z M16,6c2.2,0,4.1,1.2,5.2,3H10.8C11.9,7.2,13.8,6,16,6z"/><path d="M23,21C23,21,23,21,23,21l0,2c0,0.6-0.4,1-1,1s-1-0.4-1-1v-2H11v2c0,0.6-0.4,1-1,1s-1-0.4-1-1v-2c0,0,0,0,0,0c-2.4-0.1-4.5-1.2-6-2.9V25c0,1.7,1.3,3,3,3h20c1.7,0,3-1.3,3-3v-6.9C27.5,19.8,25.4,20.9,23,21z"/></g></svg>`;
   const SVG_STAR = `<svg fill="currentColor" width="18" height="18" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><path d="M62.799,23.737c-0.47-1.399-1.681-2.419-3.139-2.642l-16.969-2.593L35.069,2.265C34.419,0.881,33.03,0,31.504,0c-1.527,0-2.915,0.881-3.565,2.265l-7.623,16.238L3.347,21.096c-1.458,0.223-2.669,1.242-3.138,2.642c-0.469,1.4-0.115,2.942,0.916,4l12.392,12.707l-2.935,17.977c-0.242,1.488,0.389,2.984,1.62,3.854c1.23,0.87,2.854,0.958,4.177,0.228l15.126-8.365l15.126,8.365c0.597,0.33,1.254,0.492,1.908,0.492c0.796,0,1.592-0.242,2.269-0.72c1.231-0.869,1.861-2.365,1.619-3.854l-2.935-17.977l12.393-12.707C62.914,26.68,63.268,25.138,62.799,23.737z"/></svg>`;
@@ -2551,12 +2554,15 @@ function renderExperienceHtml_(exp, sigLocked){
       </svg>
     </span>
     <div class="cc-exp-title cc-exp-accTitle">Заключение</div>
+   ${sigLocked ? `<span class="cc-exp-accTag">Заблокировано</span>` : ``}
     <span class="cc-exp-accChev" aria-hidden="true">
       <svg viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
     </span>
   </summary>
 
   <div class="cc-exp-accBody">
+  <div class="cc-sectionLock ${sigLocked ? "is-locked" : ""}" style="margin-top:0;">
+  <div class="cc-sectionLockBody">
     <div class="cc-conclHint cc-conclHintRow">
   <div class="cc-conclHintTxt">
     Приведите аргументы, которые будут отражать объективные причины (уровень заработной платы, комфортное рабочее место и т.п.) и субъективные причины (интерес, мотивация, саморазвитие, ...)
@@ -2604,6 +2610,28 @@ function renderExperienceHtml_(exp, sigLocked){
         </div>
       </div>
     </div>
+  </div>
+
+  ${sigLocked ? `
+    <div class="cc-lockOverlay" aria-hidden="true">
+      <div class="cc-lockInner">
+        <span class="cc-lockIco">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </span>
+        <div>
+          <div class="cc-lockTitle">Блок недоступен</div>
+          <div class="cc-lockSub">
+            Блок откроется после прохождения этапов: “Значимый опыт: Заполнение” и “Значимый опыт: Оценка”
+          </div>
+        </div>
+      </div>
+    </div>
+  ` : ``}
+</div>
+
   </div>
 </details>
   `;
