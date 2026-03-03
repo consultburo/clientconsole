@@ -2079,7 +2079,7 @@ details[open] .cc-skillsLegendChevron{ transform:rotate(180deg); }
 .cc-exp-ico{ width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; flex:0 0 18px; }
 .cc-exp-ico-prof{ color:#0b6f92; }
 .cc-exp-ico-sig{ color:#f0b429; }
-.cc-exp-ico-concl{ color:#7b61ff; }
+.cc-exp-ico-concl{ color:#0b5f86; }
 .cc-exp-ico-outs{ color:#f97316; }
 .cc-exp-title{ font-weight:800; color:#043D56; }
 /* ===== Experience: section accordion ===== */
