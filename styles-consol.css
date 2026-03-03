@@ -2173,6 +2173,32 @@ details[open] .cc-skillsLegendChevron{ transform:rotate(180deg); }
   line-height:1.35;
   color:#043D56;
 }
+.cc-conclHintRow{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.cc-conclHintTxt{ flex:1; }
+.cc-conclHintR{ display:flex; align-items:flex-start; }
+
+.cc-conclBtn{
+  padding:8px 12px;
+  border-radius:12px;
+  font-size:12px;
+  white-space:nowrap;
+}
+
+.cc-conclMsg{
+  margin:8px 0 10px;
+  font-size:12px;
+  color:#043D56;
+}
+.cc-conclMsg.is-err{ color:#b91c1c; }
+
+.cc-conclTa[readonly]{
+  background:rgba(255,255,255,0.55);
+}
 .cc-conclTable{
   margin-top:0;
   border:0;
@@ -2217,18 +2243,19 @@ details[open] .cc-skillsLegendChevron{ transform:rotate(180deg); }
   resize:none;
   overflow:auto;
 
-  height:88px;
-  min-height:88px;
-  max-height:88px;
+  
+  height:140px;
+  min-height:140px;
+  max-height:140px;
 
   padding:8px 10px;   /* перебиваем padding:0 10px от .cc-input */
   box-sizing:border-box;
   line-height:1.25;
 }
 .cc-conclRow--out .cc-conclTa{
-  height:88px;
-  min-height:88px;
-  max-height:88px;
+  height:140px;
+  min-height:140px;
+  max-height:140px;
 }
 
 /* mobile: упрощаем в 1 колонку, заголовок-строку скрываем */
