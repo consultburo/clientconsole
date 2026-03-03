@@ -2055,7 +2055,158 @@ async function loadExperience_(){
   }
 
   box.innerHTML = renderExperienceHtml_(out.experience || {}, !!out.sig_locked);
+  conclInitUi_((out.experience || {}).conclusion || {});
 }
+
+let CONCL_BASELINE_STR = "";
+let CONCL_SAVING = false;
+
+function conclEls_(){
+  return {
+    acc: document.querySelector(".cc-exp-acc--concl"),
+    btn: document.getElementById("btnConclEdit"),
+    msg: document.getElementById("conclMsg"),
+    sp:  (document.getElementById("btnConclEdit") ? document.getElementById("btnConclEdit").querySelector(".cc-btn-spinner") : null),
+    f: {
+      bestObj:  document.getElementById("conclBestObj"),
+      bestSub:  document.getElementById("conclBestSub"),
+      worstObj: document.getElementById("conclWorstObj"),
+      worstSub: document.getElementById("conclWorstSub"),
+      practical:document.getElementById("conclPractical")
+    }
+  };
+}
+
+function conclCollect_(){
+  const { f } = conclEls_();
+  const v = (x)=> (x && x.value ? String(x.value).trim() : "");
+  return {
+    best_obj:  v(f.bestObj),
+    best_sub:  v(f.bestSub),
+    worst_obj: v(f.worstObj),
+    worst_sub: v(f.worstSub),
+    practical: v(f.practical)
+  };
+}
+
+function conclApplyEdit_(on){
+  const { acc, btn, sp, msg, f } = conclEls_();
+  if (!acc) return;
+
+  acc.dataset.edit = on ? "1" : "0";
+
+  if (btn){
+    btn.textContent = on ? "Сохранить" : "Редактировать";
+    if (sp) btn.appendChild(sp);
+  }
+
+  const ro = !on;
+  if (f.bestObj)   f.bestObj.readOnly = ro;
+  if (f.bestSub)   f.bestSub.readOnly = ro;
+  if (f.worstObj)  f.worstObj.readOnly = ro;
+  if (f.worstSub)  f.worstSub.readOnly = ro;
+  if (f.practical) f.practical.readOnly = ro;
+
+  if (msg){ msg.classList.add("hidden"); msg.textContent = ""; }
+}
+
+function conclSetMsg_(text, isErr){
+  const { msg } = conclEls_();
+  if (!msg) return;
+  if (!text){
+    msg.classList.add("hidden");
+    msg.textContent = "";
+    msg.classList.remove("is-err");
+    return;
+  }
+  msg.textContent = text;
+  msg.classList.remove("hidden");
+  msg.classList.toggle("is-err", !!isErr);
+}
+
+function conclSetBaselineFromDom_(){
+  try { CONCL_BASELINE_STR = JSON.stringify(conclCollect_()); }
+  catch(_) { CONCL_BASELINE_STR = ""; }
+}
+
+async function conclSave_(){
+  const { acc, btn, sp } = conclEls_();
+  if (!acc || !btn) return;
+
+  // 1) не в edit-mode -> просто включаем редактирование
+  if (acc.dataset.edit !== "1"){
+    conclApplyEdit_(true);
+    return;
+  }
+
+  // 2) anti-spam
+  if (CONCL_SAVING) return;
+
+  const cur = conclCollect_();
+  const curStr = JSON.stringify(cur);
+
+  // 3) если нет изменений — просто выходим из режима
+  if (curStr === CONCL_BASELINE_STR){
+    conclApplyEdit_(false);
+    return;
+  }
+
+  CONCL_SAVING = true;
+  btn.disabled = true;
+  if (sp) sp.classList.remove("hidden");
+
+  try{
+    const st = S.get();
+
+    const out = await api_("save_conclusion", {
+      client_id: st.client_id,
+      session_token: st.session_token,
+      concl_json_b64: b64u_(curStr)
+    });
+
+    if (!out || !out.ok){
+      conclSetMsg_("Ошибка сохранения: " + ((out && out.error) || "unknown"), true);
+      return;
+    }
+
+    CONCL_BASELINE_STR = curStr;
+    conclApplyEdit_(false);
+    conclSetMsg_("Сохранено", false);
+    setTimeout(()=>conclSetMsg_("", false), 2500);
+
+  } finally {
+    CONCL_SAVING = false;
+    btn.disabled = false;
+    if (sp) sp.classList.add("hidden");
+  }
+}
+
+function conclInitUi_(conclusion){
+  const acc = document.querySelector(".cc-exp-acc--concl");
+  if (!acc || acc.dataset.bound === "1") return;
+  acc.dataset.bound = "1";
+
+  // если API вернул значения — подставим в поля (не мешая ручному вводу)
+  const c = (conclusion && typeof conclusion === "object") ? conclusion : {};
+  const { f } = conclEls_();
+  const put = (el, v)=>{ if(el && (el.value || "").trim() === "" && String(v||"").trim() !== "") el.value = String(v||""); };
+
+  put(f.bestObj,  c.best_obj);
+  put(f.bestSub,  c.best_sub);
+  put(f.worstObj, c.worst_obj);
+  put(f.worstSub, c.worst_sub);
+  put(f.practical,c.practical);
+
+  conclApplyEdit_(false);
+  conclSetBaselineFromDom_();
+
+  const btn = document.getElementById("btnConclEdit");
+  if (btn && btn.dataset.bound !== "1"){
+    btn.dataset.bound = "1";
+    btn.addEventListener("click", conclSave_);
+  }
+}
+
 async function loadSkills_(){
   const st = S.get();
   const box = document.getElementById("skillsBox");
@@ -2227,6 +2378,7 @@ function renderExperienceHtml_(exp, sigLocked){
   const sigAll = Array.isArray(exp.sig) ? exp.sig : [];
   const sig = sigAll.slice(0,3);
   const sigNote = (sigAll.length > 3) ? `<div class="cc-exp-note">Показаны 3 из ${sigAll.length}</div>` : "";
+  const concl = (exp && exp.conclusion && typeof exp.conclusion === "object") ? exp.conclusion : {};
   const SVG_BRIEFCASE = `<svg fill="currentColor" width="18" height="18" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><g><path d="M26,9h-2.6c-1.2-3-4.1-5-7.4-5c-3.3,0-6.2,2-7.4,5H6c-1.7,0-3,1.3-3,3v0.6C3,16.1,5.9,19,9.4,19h13.3c3.5,0,6.4-2.9,6.4-6.4V12C29,10.3,27.7,9,26,9z M16,6c2.2,0,4.1,1.2,5.2,3H10.8C11.9,7.2,13.8,6,16,6z"/><path d="M23,21C23,21,23,21,23,21l0,2c0,0.6-0.4,1-1,1s-1-0.4-1-1v-2H11v2c0,0.6-0.4,1-1,1s-1-0.4-1-1v-2c0,0,0,0,0,0c-2.4-0.1-4.5-1.2-6-2.9V25c0,1.7,1.3,3,3,3h20c1.7,0,3-1.3,3-3v-6.9C27.5,19.8,25.4,20.9,23,21z"/></g></svg>`;
   const SVG_STAR = `<svg fill="currentColor" width="18" height="18" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><path d="M62.799,23.737c-0.47-1.399-1.681-2.419-3.139-2.642l-16.969-2.593L35.069,2.265C34.419,0.881,33.03,0,31.504,0c-1.527,0-2.915,0.881-3.565,2.265l-7.623,16.238L3.347,21.096c-1.458,0.223-2.669,1.242-3.138,2.642c-0.469,1.4-0.115,2.942,0.916,4l12.392,12.707l-2.935,17.977c-0.242,1.488,0.389,2.984,1.62,3.854c1.23,0.87,2.854,0.958,4.177,0.228l15.126-8.365l15.126,8.365c0.597,0.33,1.254,0.492,1.908,0.492c0.796,0,1.592-0.242,2.269-0.72c1.231-0.869,1.861-2.365,1.619-3.854l-2.935-17.977l12.393-12.707C62.914,26.68,63.268,25.138,62.799,23.737z"/></svg>`;
   const SVG_CONCLUSION = `<svg fill="currentColor" width="18" height="18" viewBox="0 0 122.88 122.77" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M92.45,8.98c-1.35-0.94-2.88-1.35-4.44-1.04c-1.56,0.31-2.88,1.15-3.82,2.46l-5.27,7.43c-1.87-0.83-3.82-1.46-5.9-1.98c-2.08-0.52-4.03-0.94-6.11-1.25l-1.67-9.72C64.94,3.21,64.1,2,62.88,1.06c-1.35-0.94-2.78-1.25-4.44-0.94L46.26,2.31c-1.56,0.31-2.78,1.04-3.82,2.39c-0.94,1.35-1.35,2.78-1.04,4.44l1.56,8.88c-1.98,0.83-3.82,1.77-5.59,2.88c-1.77,1.04-3.5,2.29-5.07,3.5l-8.26-5.69c-1.35-0.94-2.78-1.35-4.34-1.04c-1.56,0.31-2.88,1.15-3.82,2.5L8.85,30.21c-0.94,1.35-1.35,2.88-1.04,4.44c0.31,1.67,1.15,2.88,2.5,3.82l7.43,5.27c-0.83,1.87-1.46,3.82-1.98,5.9c-0.52,2.08-0.94,4.03-1.25,6.11L4.8,57.42c-8.24,1.55-3.58,13.36-2.57,18.98c0.31,1.56,1.04,2.78,2.36,3.82c1.35,0.94,2.78,1.35,4.44,1.04l8.88-1.56c0.83,1.98,1.77,3.82,2.88,5.59c1.04,1.77,2.29,3.5,3.5,5.17l-5.69,8.16c-0.94,1.35-1.35,2.78-1.04,4.34c0.31,1.56,1.14,2.88,2.46,3.82l10.13,7.11c1.35,0.94,2.88,1.25,4.44,0.94c1.56-0.31,2.88-1.04,3.92-2.36l5.28-7.53c1.87,0.83,3.82,1.46,5.9,1.98c2.08,0.52,4.02,0.94,6.11,1.25l1.67,9.72c0.31,1.67,1.15,2.88,2.36,3.82c1.35,0.94,2.78,1.25,4.44,0.94l12.18-2.19c1.56-0.31,2.78-1.04,3.82-2.36c0.94-1.35,1.35-2.78,1.04-4.44l-1.56-8.88c1.98-0.83,3.82-1.77,5.59-2.88c1.77-1.04,3.51-2.26,5.17-3.5l8.16,5.69c1.35,0.94,2.78,1.35,4.44,1.04c1.67-0.31,2.88-1.15,3.82-2.46l7.11-10.14c0.94-1.35,1.25-2.88,0.94-4.44c-0.31-1.56-1.04-2.88-2.39-3.92L105.05,79c0.83-1.87,1.46-3.82,1.98-5.9c0.52-2.08,0.94-4.03,1.25-6.11l9.72-1.67c1.67-0.31,2.88-1.15,3.82-2.39c0.94-1.35,1.25-2.78,0.94-4.44l-2.19-12.18c-0.31-1.56-1.04-2.78-2.36-3.82c-1.35-0.94-2.78-1.35-4.44-1.04l-8.88,1.56c-0.83-1.87-1.77-3.71-2.88-5.59c-1.04-1.87-2.29-3.5-3.5-5.07l5.69-8.26c0.94-1.35,1.35-2.78,1.04-4.34c-0.31-1.56-1.15-2.88-2.46-3.82L92.73,8.87L92.45,8.98z M49.12,52.09l8.67,8.25l14.93-15.16c1.48-1.5,2.4-2.71,4.23-0.83l5.91,6.05c1.95,1.92,1.84,3.04,0.01,4.82l-21.7,21.3c-3.86,3.78-3.18,4.01-7.1,0.13L39.17,61.85c-0.81-0.88-0.73-1.77,0.16-2.66l6.86-7.12C47.22,51,48.05,51.07,49.12,52.09z M61.44,23.68c20.82,0,37.71,16.88,37.71,37.71c0,20.82-16.88,37.71-37.71,37.71S23.73,82.21,23.73,61.38C23.73,40.56,40.62,23.68,61.44,23.68z"/></svg>`;
@@ -2404,10 +2556,17 @@ function renderExperienceHtml_(exp, sigLocked){
   </summary>
 
   <div class="cc-exp-accBody">
-    <div class="cc-conclHint">
-      Приведите аргументы, которые будут отражать объективные причины (уровень заработной платы, комфортное рабочее место и т.п.) и субъективные причины (интерес, мотивация, саморазвитие, ...)
-    </div>
-
+    <div class="cc-conclHint cc-conclHintRow">
+  <div class="cc-conclHintTxt">
+    Приведите аргументы, которые будут отражать объективные причины (уровень заработной платы, комфортное рабочее место и т.п.) и субъективные причины (интерес, мотивация, саморазвитие, ...)
+  </div>
+  <div class="cc-conclHintR">
+    <button type="button" id="btnConclEdit" class="cc-btn cc-conclBtn">
+      Редактировать <span class="cc-btn-spinner hidden"></span>
+    </button>
+  </div>
+</div>
+<div id="conclMsg" class="cc-conclMsg hidden"></div>
     <div class="cc-conclTable">
       <div class="cc-conclRow cc-conclRow--head">
         <div class="cc-conclCell cc-conclCell--stub"></div>
@@ -2418,27 +2577,28 @@ function renderExperienceHtml_(exp, sigLocked){
       <div class="cc-conclRow">
         <div class="cc-conclCell cc-conclCell--head">Наиболее благоприятный период</div>
         <div class="cc-conclCell">
-          <textarea class="cc-input cc-conclTa" rows="4" maxlength="1200" placeholder="Например: зарплата, условия, график…"></textarea>
-        </div>
+       <textarea id="conclBestObj" class="cc-input cc-conclTa" maxlength="2000" readonly
+  placeholder="Например: зарплата, условия, график…">${escapeHtml(concl.best_obj || "")}</textarea>
         <div class="cc-conclCell">
-          <textarea class="cc-input cc-conclTa" rows="4" maxlength="1200" placeholder="Например: интерес, мотивация, развитие…"></textarea>
+        <textarea id="conclBestSub" class="cc-input cc-conclTa" maxlength="2000" readonly
+  placeholder="Например: интерес, мотивация, развитие…">${escapeHtml(concl.best_sub || "")}</textarea>
         </div>
       </div>
 
       <div class="cc-conclRow">
         <div class="cc-conclCell cc-conclCell--head">Наименее благоприятный период</div>
         <div class="cc-conclCell">
-          <textarea class="cc-input cc-conclTa" rows="4" maxlength="1200"></textarea>
+         <textarea id="conclWorstObj" class="cc-input cc-conclTa" maxlength="2000" readonly>${escapeHtml(concl.worst_obj || "")}</textarea>
         </div>
         <div class="cc-conclCell">
-          <textarea class="cc-input cc-conclTa" rows="4" maxlength="1200"></textarea>
+        <textarea id="conclWorstSub" class="cc-input cc-conclTa" maxlength="2000" readonly>${escapeHtml(concl.worst_sub || "")}</textarea>
         </div>
       </div>
 
       <div class="cc-conclRow cc-conclRow--out">
         <div class="cc-conclCell cc-conclCell--head">Возможные практические выводы:</div>
         <div class="cc-conclCell cc-conclCell--span2">
-          <textarea class="cc-input cc-conclTa" rows="4" maxlength="2000"></textarea>
+          <textarea id="conclPractical" class="cc-input cc-conclTa" maxlength="6000" readonly>${escapeHtml(concl.practical || "")}</textarea>
         </div>
       </div>
     </div>
