@@ -2150,7 +2150,7 @@ details[open] .cc-skillsLegendChevron{ transform:rotate(180deg); }
 .cc-exp-acc--sig > .cc-exp-accBody{ background:#fff8e6; border-color:#ffe7ae; }
 
 .cc-exp-acc--concl > .cc-exp-accSum,
-.cc-exp-acc--concl > .cc-exp-accBody{ background:#f4edff; border-color:#e6d6ff; }
+.cc-exp-acc--concl > .cc-exp-accBody{ background:#d9efff; border-color:#bfe3ff; }
 
 .cc-exp-acc--outs > .cc-exp-accSum,
 .cc-exp-acc--outs > .cc-exp-accBody{ background:#fff1e6; border-color:#ffd1ae; }
