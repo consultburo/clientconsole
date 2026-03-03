@@ -1538,7 +1538,7 @@ function dashboardPhases_(){
       "status_8_sam_drive","status_9_sam_intelligences","status_10_sam_big5"
     ]},
     { title:"Опыт", keys:[
-      "status_EXP_1","status_EXP_2","status_EXP_3","status_EXP_4"
+      "status_EXP_1","status_EXP_2","status_EXP_3","status_EXP_4","status_exp_conclusion"
     ]},
     { title:"Навыки", keys:[
       "status_chest_skills_client_rated",
@@ -1568,6 +1568,7 @@ function dashboardLabelOverrides_(){
     "status_EXP_2": "Проф.Опыт: Оценка",
     "status_EXP_3": "Значимый опыт: Заполнение",
     "status_EXP_4": "Значимый опыт: Оценка",
+    "status_exp_conclusion": "Опыт: Заключение",
 
     // Навыки
     "status_chest_skills_client_rated": "Навыки и Знания",
@@ -2579,6 +2580,7 @@ function renderExperienceHtml_(exp, sigLocked){
         <div class="cc-conclCell">
        <textarea id="conclBestObj" class="cc-input cc-conclTa" maxlength="2000" readonly
   placeholder="Например: зарплата, условия, график…">${escapeHtml(concl.best_obj || "")}</textarea>
+        </div>
         <div class="cc-conclCell">
         <textarea id="conclBestSub" class="cc-input cc-conclTa" maxlength="2000" readonly
   placeholder="Например: интерес, мотивация, развитие…">${escapeHtml(concl.best_sub || "")}</textarea>
@@ -3393,7 +3395,6 @@ document.addEventListener("toggle", (e) => {
     .forEach(d => { if (d !== t) d.open = false; });
 }, true);
 }
-
 
 
 
