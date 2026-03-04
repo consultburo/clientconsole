@@ -358,8 +358,8 @@ function planNormalizeLayout_(){
     const btn = document.createElement("button");
     btn.type = "button";
     btn.id = "btnPlanParamsEdit";
-    btn.className = "cc-btn cc-planParamsBtn";
-    btn.innerHTML = `Редактировать <span class="cc-btn-spinner hidden"></span>`;
+    btn.className = "cc-btn cc-btn-primary cc-conclBtn cc-planParamsBtn";
+    btn.innerHTML = `<span class="cc-btn-ico" aria-hidden="true">${SVG_BTN_EDIT}</span><span class="cc-btn-text">Редактировать</span><span class="cc-btn-spinner hidden"></span>`;
 
     const msg = document.createElement("div");
     msg.id = "planParamsMsg";
@@ -459,11 +459,20 @@ function planParamsApplyEdit_(wrap, on) {
   wrap.dataset.edit = on ? "1" : "0";
 
   const btn = document.getElementById("btnPlanParamsEdit");
-  if (btn) {
-    const sp = btn.querySelector(".cc-btn-spinner");
+  if (btn){
+  const ico = btn.querySelector(".cc-btn-ico");
+  const tx  = btn.querySelector(".cc-btn-text");
+  const sp  = btn.querySelector(".cc-btn-spinner");
+
+  if (ico) ico.innerHTML = on ? SVG_BTN_SAVE : SVG_BTN_EDIT;
+  if (tx)  tx.textContent = on ? "Сохранить" : "Редактировать";
+
+  // fallback, если вдруг кнопка без спанов
+  if (!ico || !tx){
     btn.textContent = on ? "Сохранить" : "Редактировать";
     if (sp) btn.appendChild(sp);
   }
+}
 
   const pr = document.getElementById("plProject");
   const du = document.getElementById("plDuration");
