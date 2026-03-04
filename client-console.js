@@ -2739,7 +2739,7 @@ c1.231-0.869,1.861-2.365,1.619-3.854l-2.935-17.977l12.393-12.707C62.914,26.68,63
     Приведите аргументы, которые будут отражать объективные причины (уровень заработной платы, комфортное рабочее место и т.п.) и субъективные причины (интерес, мотивация, саморазвитие, ...)
   </div>
   <div class="cc-conclHintR">
-    <button type="button" id="btnConclEdit" class="cc-btn cc-conclBtn">
+    <button type="button" id="btnConclEdit" class="cc-btn cc-btn-primary cc-conclBtn">
   <span class="cc-btn-ico" aria-hidden="true">${SVG_BTN_EDIT}</span>
   <span class="cc-btn-text">Редактировать</span>
   <span class="cc-btn-spinner hidden"></span>
@@ -2855,7 +2855,7 @@ c1.231-0.869,1.861-2.365,1.619-3.854l-2.935-17.977l12.393-12.707C62.914,26.68,63
             Определение предварительного профессионального проекта через выявление общих характеристик в значимых опытах, которые получили максимальные баллы по соответствию личностным характеристикам
           </div>
           <div class="cc-conclHintR">
-           <button type="button" id="btnOutEdit" class="cc-btn cc-conclBtn">
+           <button type="button" id="btnOutEdit" class="cc-btn cc-btn-primary cc-conclBtn">
   <span class="cc-btn-ico" aria-hidden="true">${SVG_BTN_EDIT}</span>
   <span class="cc-btn-text">Редактировать</span>
   <span class="cc-btn-spinner hidden"></span>
