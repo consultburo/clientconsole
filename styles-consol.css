@@ -2236,7 +2236,10 @@ details[open] .cc-skillsLegendChevron{ transform:rotate(180deg); }
 }
 .cc-conclHintTxt{ flex:1; }
 .cc-conclHintR{ display:flex; align-items:flex-start; }
-
+/* Plan: same hint row as "Выводы" */
+.cc-planStepsHintRow{
+  margin:10px 0 12px;
+}
 .cc-conclBtn{
   height:32px; 
   padding:0 10px; 
