@@ -403,7 +403,40 @@ if(!document.getElementById("plStepsTitle")){
         inner.classList.add("cc-planFlatCard");
       }
     }
+// 2.6) Перенос кнопки "Сохранить" в шапку "Шаги" + напоминание
+const keep = document.getElementById("plStepsTitle");
+if (keep && !document.getElementById("plStepsBar")) {
+  const bar = document.createElement("div");
+  bar.id = "plStepsBar";
+  bar.className = "cc-planStepsBar";
 
+  const left = document.createElement("div");
+  left.className = "cc-planStepsBarL";
+  // переносим существующий заголовок "Шаги" внутрь новой строки
+  left.appendChild(keep);
+
+  const right = document.createElement("div");
+  right.className = "cc-planStepsBarR";
+
+  const hint = document.createElement("div");
+  hint.className = "cc-planStepsSaveHint";
+  hint.textContent = "Не забудьте сохранить изменения в Шагах пред тем как выйти";
+
+  const btnSave = document.getElementById("btnSavePlan");
+  if (btnSave) {
+    // appendChild "перемещает" элемент, не копирует — кнопка уйдёт из topbar
+    right.appendChild(hint);
+    right.appendChild(btnSave);
+  } else {
+    right.appendChild(hint);
+  }
+
+  bar.appendChild(left);
+  bar.appendChild(right);
+
+  // вставляем bar туда, где раньше был заголовок "Шаги" (теперь он внутри bar)
+  acc.parentNode.insertBefore(bar, acc);
+}
     // 4) Удаляем дубли заголовка "Шаги" (legacy) — не завязываемся на plStepsBody
     const keep = document.getElementById("plStepsTitle");
     if (keep && page) {
