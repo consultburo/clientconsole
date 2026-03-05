@@ -6,7 +6,7 @@ if (window.__CC_CLIENT_CONSOLE_INIT__) {
  * CONFIG
  * ====================== */
 const USE_JSONP = true; // Вариант A: false (WebApp UI). Вариант B (Tilda): true
-const API_BASE = "https://script.google.com/macros/s/AKfycbziosTVszF-YN0AeR-qUeSriUYYNi6wRni2x4W-_NWXAPXP5ZrdDDbtNh-MofDQy8Rj/exec";
+const API_BASE = "https://script.google.com/macros/s/AKfycby4nM1ZDb8bBDBNRvp36LPWs0gQBvKoBSmKlpAj2W4NAZMpI_BZnLNBwC-X5WKLvt5I/exec";
 const API_PROXY_BASE = "";
 
 const STORE_KEY = "profid_client_console_v1";
@@ -1557,8 +1557,8 @@ function dashboardPhases_(){
     { title:"Самоанализ", keys:[
       "status_8_sam_drive","status_9_sam_intelligences","status_10_sam_big5"
     ]},
-    { title:"Опыт", keys:[
-      "status_EXP_1","status_EXP_2","status_EXP_3","status_EXP_4","status_exp_conclusion"
+   { title:"Опыт", keys:[
+  "status_EXP_1","status_EXP_2","status_exp_conclusion","status_EXP_3","status_EXP_4","status_exp_out"
     ]},
     { title:"Навыки", keys:[
       "status_chest_skills_client_rated",
@@ -1588,8 +1588,8 @@ function dashboardLabelOverrides_(){
     "status_EXP_2": "Проф.Опыт: Оценка",
     "status_EXP_3": "Значимый опыт: Заполнение",
     "status_EXP_4": "Значимый опыт: Оценка",
-    "status_exp_conclusion": "Опыт: Заключение",
-
+    "status_exp_conclusion": "Заключение",
+    "status_exp_out": "Выводы",
     // Навыки
     "status_chest_skills_client_rated": "Навыки и Знания",
     "status_quality": "Знач опыт: Качества"
@@ -2179,6 +2179,18 @@ async function conclSave_(){
   const cur = conclCollect_();
   const curStr = JSON.stringify(cur);
 
+  const isComplete =
+    !!String(cur.best_obj || "").trim() &&
+    !!String(cur.best_sub || "").trim() &&
+    !!String(cur.worst_obj || "").trim() &&
+    !!String(cur.worst_sub || "").trim() &&
+    !!String(cur.practical || "").trim();
+
+  if (!isComplete){
+    conclSetMsg_("Чтобы завершить «Заключение», заполните все поля.", true);
+    return;
+  }
+
   // 3) если нет изменений — просто выходим из режима
   if (curStr === CONCL_BASELINE_STR){
     conclApplyEdit_(false);
@@ -2347,6 +2359,26 @@ async function outSave_(){
 
   const cur = outCollect_();
   const curStr = JSON.stringify(cur);
+
+  const hasAnyLine_ = (s)=>{
+    const lines = String(s || "").replace(/\r/g,"").split("\n");
+    for (let i=0; i<lines.length; i++){
+      if (String(lines[i] || "").trim()) return true;
+    }
+    return false;
+  };
+
+  const okBlocks =
+    hasAnyLine_(cur.area) &&
+    hasAnyLine_(cur.env) &&
+    hasAnyLine_(cur.func) &&
+    hasAnyLine_(cur.goals) &&
+    hasAnyLine_(cur.practical);
+
+  if (!okBlocks){
+    outSetMsg_("Заполните минимум одну строку в каждом блоке «Выводы».", true);
+    return;
+  }
 
   if (curStr === OUT_BASELINE_STR){
     outApplyEdit_(false);
