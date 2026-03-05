@@ -475,6 +475,51 @@
   line-height:1.2;
   margin:18px 0 12px;
 }
+/* Plan: steps header bar (hint + save button) */
+.cc-planStepsBar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin:18px 0 12px;
+}
+
+.cc-planStepsBarL{ min-width:0; }
+
+/* переносим отступы с заголовка на bar */
+.cc-planStepsBar .cc-planStepsTitle{
+  margin:0;
+}
+
+.cc-planStepsBarR{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.cc-planStepsSaveHint{
+  font-size:12px;
+  color:#6b7280;
+  line-height:1.25;
+  max-width:420px;
+  text-align:right;
+}
+
+@media (max-width: 700px){
+  .cc-planStepsBar{
+    align-items:flex-start;
+  }
+  .cc-planStepsBarR{
+    width:100%;
+    justify-content:flex-start;
+  }
+  .cc-planStepsSaveHint{
+    text-align:left;
+    max-width:none;
+  }
+}
 /* Head row: title+hint left, edit/save right */
 .cc-planParamsHead{
   display:flex;
