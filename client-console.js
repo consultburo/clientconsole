@@ -403,39 +403,28 @@ if(!document.getElementById("plStepsTitle")){
         inner.classList.add("cc-planFlatCard");
       }
     }
-// 2.6) Перенос кнопки "Сохранить" в шапку "Шаги" + напоминание
+// 2.6) Контейнер над "Шагами" как в "Выводы": текст слева + "Сохранить" справа
 const keep = document.getElementById("plStepsTitle");
-if (keep && !document.getElementById("plStepsBar")) {
-  const bar = document.createElement("div");
-  bar.id = "plStepsBar";
-  bar.className = "cc-planStepsBar";
+if (keep && !document.getElementById("plStepsHintRow")) {
+  const row = document.createElement("div");
+  row.id = "plStepsHintRow";
+  row.className = "cc-conclHint cc-conclHintRow cc-planStepsHintRow";
 
-  const left = document.createElement("div");
-  left.className = "cc-planStepsBarL";
-  // переносим существующий заголовок "Шаги" внутрь новой строки
-  left.appendChild(keep);
+  const txt = document.createElement("div");
+  txt.className = "cc-conclHintTxt";
+  txt.textContent = "Не забудьте сохранить изменения в Шагах пред тем как выйти";
 
-  const right = document.createElement("div");
-  right.className = "cc-planStepsBarR";
-
-  const hint = document.createElement("div");
-  hint.className = "cc-planStepsSaveHint";
-  hint.textContent = "Не забудьте сохранить изменения в Шагах пред тем как выйти";
+  const r = document.createElement("div");
+  r.className = "cc-conclHintR";
 
   const btnSave = document.getElementById("btnSavePlan");
-  if (btnSave) {
-    // appendChild "перемещает" элемент, не копирует — кнопка уйдёт из topbar
-    right.appendChild(hint);
-    right.appendChild(btnSave);
-  } else {
-    right.appendChild(hint);
-  }
+  if (btnSave) r.appendChild(btnSave);
 
-  bar.appendChild(left);
-  bar.appendChild(right);
+  row.appendChild(txt);
+  row.appendChild(r);
 
-  // вставляем bar туда, где раньше был заголовок "Шаги" (теперь он внутри bar)
-  acc.parentNode.insertBefore(bar, acc);
+  // вставляем СРАЗУ после заголовка "Шаги"
+  keep.parentNode.insertBefore(row, keep.nextSibling);
 }
     // 4) Удаляем дубли заголовка "Шаги" (legacy) — не завязываемся на plStepsBody
     const keep2 = document.getElementById("plStepsTitle");
@@ -454,6 +443,7 @@ if (keep && !document.getElementById("plStepsBar")) {
     }
     }
   }
+
 function planGridChildById_(grid, id) {
   const el = document.getElementById(id);
   if (!grid || !el || !grid.contains(el)) return null;
