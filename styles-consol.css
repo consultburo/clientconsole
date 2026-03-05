@@ -5,6 +5,17 @@
 }
 
 .cc-page{padding:18px;min-height:560px}
+.cc-pageH1{
+  font-size:34px;
+  line-height:1.1;
+  font-weight:900;
+  color:#043D56;
+  margin:0 0 14px;
+}
+
+@media (max-width: 520px){
+  .cc-pageH1{ font-size:28px; }
+}
 @media (max-width: 900px){.cc-page{min-height:520px}}
 
 .cc-phase-row{display:flex;align-items:flex-start;gap:12px;padding:6px 0}
