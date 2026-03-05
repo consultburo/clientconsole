@@ -438,13 +438,13 @@ if (keep && !document.getElementById("plStepsBar")) {
   acc.parentNode.insertBefore(bar, acc);
 }
     // 4) Удаляем дубли заголовка "Шаги" (legacy) — не завязываемся на plStepsBody
-    const keep = document.getElementById("plStepsTitle");
-    if (keep && page) {
+    const keep2 = document.getElementById("plStepsTitle");
+    if (keep2 && page) {
       const nodes = page.querySelectorAll("h1,h2,h3,h4,div,p,span");
       for (const el of nodes) {
         if (!el) continue;
-        if (el === keep) continue;
-        if (keep.contains(el)) continue;
+        if (el === keep2) continue;
+        if (keep2.contains(el)) continue;
         if (el.closest && el.closest("#plStepsAcc")) continue;
         if (el.closest && el.closest(".cc-planStep")) continue;
 
