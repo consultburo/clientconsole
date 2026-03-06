@@ -796,13 +796,24 @@ if(oldHint) oldHint.remove();
 
     // SAVE sticky bar inside pagePlan + inline updated_at + progress
   const page = document.getElementById("planShell") || document.getElementById("pagePlan");
-  const btn = document.getElementById("btnSavePlan");
+ const btn = document.getElementById("btnSavePlan");
+if (btn){
+  const label = (btn.querySelector(".cc-btn-text") ? btn.querySelector(".cc-btn-text").textContent : btn.textContent) || "Сохранить";
 
-  if(btn && !btn.querySelector(".cc-btn-spinner")){
+  // если кнопка ещё без нашей разметки — собираем один раз
+  if (!btn.querySelector(".cc-btn-ico") || !btn.querySelector(".cc-btn-text")){
+    btn.innerHTML =
+      `<span class="cc-btn-ico" aria-hidden="true">${SVG_BTN_SAVE}</span>` +
+      `<span class="cc-btn-text">${escapeHtml(String(label).trim() || "Сохранить")}</span>`;
+  }
+
+  // спиннер гарантируем
+  if (!btn.querySelector(".cc-btn-spinner")){
     const sp = document.createElement("span");
     sp.className = "cc-btn-spinner hidden";
     btn.appendChild(sp);
   }
+}
   if(page) page.classList.add("cc-planPage");
 
   if(page && btn && page.contains(btn)){
@@ -2080,7 +2091,7 @@ async function loadExperience_(){
   const box = document.getElementById("experienceBox");
   const st = S.get();
 
-  const titleHtml = '<div class="cc-pageH1">Мой Опыт</div>';
+  const titleHtml = '<h2 class="bt-title">Мой Опыт</h2>';
 
   if(!st.client_id || !st.session_token){
     box.innerHTML = titleHtml + `<div class="cc-card">Нет активной сессии.</div>`;
