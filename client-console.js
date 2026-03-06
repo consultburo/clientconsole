@@ -2091,8 +2091,6 @@ async function loadExperience_(){
   const box = document.getElementById("experienceBox");
   const st = S.get();
 
-  const titleHtml = '<h2>Мой опыт</h2>';
-
   if(!st.client_id || !st.session_token){
     box.innerHTML = titleHtml + `<div class="cc-card">Нет активной сессии.</div>`;
     return;
@@ -2104,14 +2102,14 @@ async function loadExperience_(){
   if(!out || !out.ok){
     const err = (out && out.error) ? String(out.error) : "unknown";
     if (err === "experience_locked"){
-      box.innerHTML = titleHtml + `<div class="cc-card">Завершите этап: Проф.Опыт, Оценка проф., Значимый опыт, Оценка знач.</div>`;
+      box.innerHTML = `<div class="cc-card">Завершите этап: Проф.Опыт, Оценка проф., Значимый опыт, Оценка знач.</div>`;
       return;
     }
-    box.innerHTML = titleHtml + `<div class="cc-card">Ошибка: ${escapeHtml(err)}</div>`;
+    box.innerHTML = `<div class="cc-card">Ошибка: ${escapeHtml(err)}</div>`;
     return;
   }
 
-  box.innerHTML = titleHtml + renderExperienceHtml_(out.experience || {}, !!out.sig_locked);
+  box.innerHTML = renderExperienceHtml_(out.experience || {}, !!out.sig_locked);
   conclInitUi_((out.experience || {}).conclusion || {});
   outInitUi_((out.experience || {}).outputs || {});
 }
