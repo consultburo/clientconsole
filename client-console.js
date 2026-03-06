@@ -2102,14 +2102,14 @@ async function loadExperience_(){
   if(!out || !out.ok){
     const err = (out && out.error) ? String(out.error) : "unknown";
     if (err === "experience_locked"){
-      box.innerHTML = `<div class="cc-card">Завершите этап: Проф.Опыт, Оценка проф., Значимый опыт, Оценка знач.</div>`;
+      box.innerHTML = titleHtml + `<div class="cc-card">Завершите этап: Проф.Опыт, Оценка проф., Значимый опыт, Оценка знач.</div>`;
       return;
     }
-    box.innerHTML = `<div class="cc-card">Ошибка: ${escapeHtml(err)}</div>`;
+    box.innerHTML = titleHtml + `<div class="cc-card">Ошибка: ${escapeHtml(err)}</div>`;
     return;
   }
 
-  box.innerHTML = renderExperienceHtml_(out.experience || {}, !!out.sig_locked);
+  box.innerHTML = titleHtml + renderExperienceHtml_(out.experience || {}, !!out.sig_locked);
   conclInitUi_((out.experience || {}).conclusion || {});
   outInitUi_((out.experience || {}).outputs || {});
 }
