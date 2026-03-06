@@ -2249,10 +2249,12 @@ details[open] .cc-skillsLegendChevron{ transform:rotate(180deg); }
 }
 
 /* кнопка "Сохранить" компактнее по высоте */
+/* btnSavePlan: same height as "Редактировать" (cc-planParamsBtn) */
 #btnSavePlan{
-  height:28px;
-  padding:0 10px;
+  height:34px;
+  padding:0 12px;
   border-radius:10px;
+  font-weight:800;
 }
 
 /* иконка+текст в кнопке чуть плотнее */
