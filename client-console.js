@@ -2091,7 +2091,7 @@ async function loadExperience_(){
   const box = document.getElementById("experienceBox");
   const st = S.get();
 
-  const titleHtml = '<h2 class="bt-title">Мой Опыт</h2>';
+  const titleHtml = '<h2>Мой опыт</h2>';
 
   if(!st.client_id || !st.session_token){
     box.innerHTML = titleHtml + `<div class="cc-card">Нет активной сессии.</div>`;
