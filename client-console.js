@@ -2092,24 +2092,24 @@ async function loadExperience_(){
   const st = S.get();
 
   if(!st.client_id || !st.session_token){
-    box.innerHTML = titleHtml + `<div class="cc-card">Нет активной сессии.</div>`;
+    box.innerHTML = `<div class="cc-card">Нет активной сессии.</div>`;
     return;
   }
 
-  box.innerHTML = titleHtml + `<div class="cc-card">${skelIdentity_()}</div>`;
+  box.innerHTML = `<div class="cc-card">${skelIdentity_()}</div>`;
 
   const out = await api_("get_experience",{client_id: st.client_id, session_token: st.session_token});
   if(!out || !out.ok){
     const err = (out && out.error) ? String(out.error) : "unknown";
     if (err === "experience_locked"){
-      box.innerHTML = titleHtml + `<div class="cc-card">Завершите этап: Проф.Опыт, Оценка проф., Значимый опыт, Оценка знач.</div>`;
+      box.innerHTML = `<div class="cc-card">Завершите этап: Проф.Опыт, Оценка проф., Значимый опыт, Оценка знач.</div>`;
       return;
     }
-    box.innerHTML = titleHtml + `<div class="cc-card">Ошибка: ${escapeHtml(err)}</div>`;
+    box.innerHTML = `<div class="cc-card">Ошибка: ${escapeHtml(err)}</div>`;
     return;
   }
 
-  box.innerHTML = titleHtml + renderExperienceHtml_(out.experience || {}, !!out.sig_locked);
+  box.innerHTML = renderExperienceHtml_(out.experience || {}, !!out.sig_locked);
   conclInitUi_((out.experience || {}).conclusion || {});
   outInitUi_((out.experience || {}).outputs || {});
 }
